@@ -26,37 +26,37 @@ export const sendOTP = async (req, res) => {
       expired: expired,
     });
 
-    let config = {
-      method: "post",
-      url: "https://sendtalk-api.taptalk.io/api/v1/message/send_whatsapp",
-      headers: {
-        "api-key": process.env.SENDTALK_API_KEY,
-        "Content-Type": "application/json",
-      },
-      data: {
-        phone: phoneNumber,
-        messageType: "otp",
-        body: `*${
-          process.env.COMPANY
-        }* - JANGAN MEMBERITAHUKAN KODE INI KEPADA SIAPAPUN. KODE ANDA : ${String(
-          code
-        )}`,
-      },
-    };
+    // let config = {
+    //   method: "post",
+    //   url: "https://sendtalk-api.taptalk.io/api/v1/message/send_whatsapp",
+    //   headers: {
+    //     "api-key": process.env.SENDTALK_API_KEY,
+    //     "Content-Type": "application/json",
+    //   },
+    //   data: {
+    //     phone: phoneNumber,
+    //     messageType: "otp",
+    //     body: `*${
+    //       process.env.COMPANY
+    //     }* - JANGAN MEMBERITAHUKAN KODE INI KEPADA SIAPAPUN. KODE ANDA : ${String(
+    //       code
+    //     )}`,
+    //   },
+    // };
 
-    // SEND OTP CODE TO WHATSAPP USER
-    await axios(config)
-      .then(function (response) {
-        console.log(JSON.stringify(response.data));
-        res.status(200).json({
-          status: "OK",
-          code: code,
-          nohp: phoneNumber,
-        });
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+    // // SEND OTP CODE TO WHATSAPP USER
+    // await axios(config)
+    //   .then(function (response) {
+    //     console.log(JSON.stringify(response.data));
+    //   })
+    //   .catch(function (error) {
+    //     console.log(error);
+    //   });
+    res.status(200).json({
+      status: "OK",
+      code: code,
+      nohp: phoneNumber,
+    });
   } catch (error) {
     console.error("Auth error : " + error);
   }
