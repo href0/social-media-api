@@ -5,7 +5,7 @@ import axios from "axios";
 import { validationResult } from "express-validator";
 import { phoneNumberFormatter } from "../helper/formatter.js";
 import dotenv from "dotenv";
-
+dotenv.config();
 // SendOTP
 export const sendOTP = async (req, res) => {
   // Finds the validation errors in this request and wraps them in an object with handy functions
