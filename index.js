@@ -6,8 +6,11 @@ import cookieParser from "cookie-parser";
 import Users from "./models/UserModel.js";
 import Otp from "./models/OtpModel.js";
 import cors from "cors";
+import http from "http";
 
 const app = express();
+const server = http.createServer(app);
+const port = process.env.PORT || 8800;
 dotenv.config();
 try {
   await db.authenticate();
@@ -24,4 +27,4 @@ app.use(cookieParser());
 app.use(express.json());
 app.use("/api", router);
 
-app.listen(8800, () => console.log("server running at port 8800"));
+app.listen(port, () => console.log("server running at port 8800"));
