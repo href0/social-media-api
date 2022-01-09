@@ -139,7 +139,7 @@ export const Login = async (req, res) => {
 export const Register = async (req, res) => {
   try {
     await Users.create({
-      phone_number: req.phoneNumber,
+      phone_number: req.phoneNumber, // dari middleware register
       username: req.body.username,
       birth_date: req.body.birth_date,
       email: req.body.email,
