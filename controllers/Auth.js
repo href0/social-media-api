@@ -94,20 +94,19 @@ export const Login = async (req, res) => {
       });
     } else {
       const userId = user.id;
-      const name = user.full_name;
-      const email = user.email;
+      const name = user.username;
       const phone_number = user.phone_number;
 
       // generate accessToken
       const accessToken = jwt.sign(
-        { userId, name, email, phone_number },
+        { userId, name, phone_number },
         process.env.ACCESS_TOKEN_SECRET,
         { expiresIn: "20s" }
       );
 
       // generate refreshToken
       const refreshToken = jwt.sign(
-        { userId, name, email, phone_number },
+        { userId, name, phone_number },
         process.env.REFRESH_TOKEN_SECRET,
         { expiresIn: "1d" }
       );
@@ -138,16 +137,47 @@ export const Login = async (req, res) => {
 // REGISTER
 export const Register = async (req, res) => {
   try {
-    await Users.create({
+    const create = await Users.create({
       phone_number: req.phoneNumber, // dari middleware register
       username: req.body.username,
       birth_date: req.body.birth_date,
       email: req.body.email,
       level_id: "4", // 1. Superadmin 2.Admin 3.Brand 4.userBiasa
     });
+    const userId = create.id;
+    const name = create.username;
+    const phone_number = create.phone_number;
+    // generate accessToken
+    const accessToken = jwt.sign(
+      { userId, name, phone_number },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "20s" }
+    );
+
+    // generate refreshToken
+    const refreshToken = jwt.sign(
+      { userId, name, phone_number },
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    // update refreshToken
+    await Users.update(
+      { refresh_token: refreshToken },
+      {
+        where: { id: userId },
+      }
+    );
 
     await Otp.destroy({ where: { phone_number: req.phoneNumber } });
-    res.status(200).json({ status: "OK", message: "Register berhasil" });
+    // cookie httponly
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000, // gunakan secure : true untuk https
+    });
+    res
+      .status(200)
+      .json({ status: "OK", message: "Register berhasil", accessToken });
   } catch (error) {
     res.status(403).json({
       status: "Error",

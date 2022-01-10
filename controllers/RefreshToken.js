@@ -18,11 +18,10 @@ export const refreshToken = async (req, res) => {
         if (err) return res.sendStatus(403); // Forbidden
 
         const userId = user.id;
-        const name = user.full_name;
-        const email = user.email;
+        const name = user.username;
         const phone_number = user.phone_number;
         const accessToken = jwt.sign(
-          { userId, name, email, phone_number },
+          { userId, name, phone_number },
           process.env.ACCESS_TOKEN_SECRET,
           {
             expiresIn: "15s",
