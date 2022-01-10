@@ -26,9 +26,9 @@ const Users = db.define(
     email: {
       type: DataTypes.STRING,
       unique: { msg: "Email sudah terdaftar" },
-      validate: {
-        isEmail: { msg: "Format email salah" },
-      },
+      // validate: {
+      //   isEmail: { msg: "Format email salah" },
+      // },
     },
     full_name: {
       type: DataTypes.STRING,
