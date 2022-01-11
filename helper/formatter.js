@@ -1,4 +1,4 @@
-export const phoneNumberFormatter = (number) => {
+const phoneNumberFormatter = (number) => {
   // 1. menghilangkan karakter selain angka ex : 081-020
   let formatted = number.replace(/\D/g, "");
   // 2. menghilangkan angka 0 didepan  (prefix) kemudian ganti dengan 62
@@ -10,3 +10,5 @@ export const phoneNumberFormatter = (number) => {
 
   return formatted;
 };
+
+module.exports = { phoneNumberFormatter };

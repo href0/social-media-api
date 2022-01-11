@@ -1,7 +1,7 @@
-import Otp from "../models/OtpModel.js";
-import jwt from "jsonwebtoken";
+const Otp = require("../models/OtpModel.js");
+const jwt = require("jsonwebtoken");
 
-export const RegisterMiddleware = async (req, res, next) => {
+const RegisterMiddleware = async (req, res, next) => {
   const authHeader = req.headers["authorization"]; // mengambil header
   const token = authHeader && authHeader.split(" ")[1]; // mengambil token, jika tidak ada header makan null
   if (token == null) return res.sendStatus(401); // jika token null status Unauthorized
@@ -20,3 +20,5 @@ export const RegisterMiddleware = async (req, res, next) => {
     next(); // next ke register
   });
 };
+
+module.exports = { RegisterMiddleware };

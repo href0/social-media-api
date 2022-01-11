@@ -1,7 +1,7 @@
-import Users from "../models/UserModel.js";
-import jwt from "jsonwebtoken";
+const Users = require("../models/UserModel.js");
+const jwt = require("jsonwebtoken");
 
-export const refreshToken = async (req, res) => {
+const refreshToken = async (req, res) => {
   try {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) return res.sendStatus(401); // Unauthorized
@@ -18,10 +18,11 @@ export const refreshToken = async (req, res) => {
         if (err) return res.sendStatus(403); // Forbidden
 
         const userId = user.id;
+        const levelId = user.level_id;
         const name = user.username;
         const phone_number = user.phone_number;
         const accessToken = jwt.sign(
-          { userId, name, phone_number },
+          { userId, levelId, name, phone_number },
           process.env.ACCESS_TOKEN_SECRET,
           {
             expiresIn: "15s",
@@ -34,3 +35,5 @@ export const refreshToken = async (req, res) => {
     console.error("refreshToken Error:" + error);
   }
 };
+
+module.exports = { refreshToken };

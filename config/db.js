@@ -1,4 +1,4 @@
-// import { Sequelize } from "sequelize";
+// const { Sequelize } = require("sequelize");
 
 // const db = new Sequelize("auth", "root", "", {
 //   host: "localhost",
@@ -6,9 +6,9 @@
 //   timezone: "+07:00",
 // });
 
-// export default db;
+// module.exports = db;
 
-import { Sequelize } from "sequelize";
+const { Sequelize } = require("sequelize");
 
 const db = new Sequelize(
   "heroku_d867145d301a970",
@@ -21,4 +21,4 @@ const db = new Sequelize(
   }
 );
 
-export default db;
+module.exports = db;

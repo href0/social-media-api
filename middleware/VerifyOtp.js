@@ -1,8 +1,8 @@
-import Users from "../models/UserModel.js";
-import Otp from "../models/OtpModel.js";
+const Users = require("../models/UserModel.js");
+const Otp = require("../models/OtpModel.js");
 
 // VerifyOTP
-export const verifyOtp = async (req, res, next) => {
+const verifyOtp = async (req, res, next) => {
   try {
     const nohp = req.body.phone_number;
     const code = req.body.code;
@@ -38,3 +38,5 @@ export const verifyOtp = async (req, res, next) => {
     res.status(500).json({ status: "Error", message: "Terjadi kesalahan" });
   }
 };
+
+module.exports = { verifyOtp };

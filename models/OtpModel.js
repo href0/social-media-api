@@ -1,5 +1,5 @@
-import { Sequelize } from "sequelize";
-import db from "../config/db.js";
+const { Sequelize } = require("sequelize");
+const db = require("../config/db.js");
 
 const { DataTypes } = Sequelize;
 
@@ -24,4 +24,4 @@ const Otp = db.define(
   }
 );
 
-export default Otp;
+module.exports = Otp;

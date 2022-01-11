@@ -1,15 +1,14 @@
-import express from "express";
-import { sendOTP, Login, Register, Logout } from "../controllers/Auth.js";
-import { getUsers, getUser } from "../controllers/User.js";
+const router = require("express").Router();
+const authController = require("../controllers/Auth.js");
+const userController = require("../controllers/User.js");
 
-import { verifyToken } from "../middleware/VerifyToken.js";
-import { verifyOtp } from "../middleware/VerifyOtp.js";
-import { RegisterMiddleware } from "../middleware/Register.js";
+const verifyTokenMiddleware = require("../middleware/VerifyToken.js");
+const verifyOtpMiddleware = require("../middleware/VerifyOtp.js");
+const verifyRegisterMiddleware = require("../middleware/Register.js");
 
-import { refreshToken } from "../controllers/RefreshToken.js";
-import { check, validationResult } from "express-validator";
-
-const router = express.Router();
+const refreshTokenController = require("../controllers/RefreshToken.js");
+const { check, validationResult } = require("express-validator");
+const verifyOtp = require("../middleware/VerifyOtp.js");
 
 //Auth
 router.post(
@@ -21,18 +20,45 @@ router.post(
     .withMessage("No handphone tidak valid")
     .matches(/^[0-9]+$/)
     .withMessage("No handphone tidak valids"),
-  sendOTP
+  authController.sendOTP
 );
 // router.post("/auth/otp", verifyOtp);
-router.post("/auth/login", verifyOtp, Login);
-router.post("/auth/register", RegisterMiddleware, Register);
-router.delete("/auth/logout", Logout);
+router.post("/auth/login", verifyOtpMiddleware.verifyOtp, authController.Login);
+router.post(
+  "/auth/register",
+  verifyRegisterMiddleware.RegisterMiddleware,
+  authController.Register
+);
+router.delete("/auth/logout", authController.Logout);
 
 // Users
-router.get("/users", verifyToken, getUsers);
-router.get("/user", verifyToken, getUser);
+router.get(
+  "/users",
+  verifyTokenMiddleware.verifyToken,
+  userController.getUsers
+);
+router.get(
+  "/user/:username",
+  verifyTokenMiddleware.verifyToken,
+  userController.getUser
+);
+router.put(
+  "/user/:username",
+  verifyTokenMiddleware.verifyToken,
+  userController.updateUser
+);
+router.post(
+  "/user/follow/:username",
+  verifyTokenMiddleware.verifyToken,
+  userController.followUser
+);
+router.delete(
+  "/user/follow/:username",
+  verifyTokenMiddleware.verifyToken,
+  userController.unfollowUser
+);
 
 // Token
-router.get("/token", refreshToken);
+router.get("/token", refreshTokenController.refreshToken);
 
-export default router;
+module.exports = router;

@@ -1,25 +1,28 @@
-import Users from "../models/UserModel.js";
-import Otp from "../models/OtpModel.js";
-import jwt from "jsonwebtoken";
-import axios from "axios";
-import { validationResult } from "express-validator";
-import { phoneNumberFormatter } from "../helper/formatter.js";
-import dotenv from "dotenv";
+const Users = require("../models/UserModel.js");
+const Otp = require("../models/OtpModel.js");
+const jwt = require("jsonwebtoken");
+const axios = require("axios");
+const { validationResult } = require("express-validator");
+const formatter = require("../helper/formatter.js");
+const dotenv = require("dotenv");
 dotenv.config();
+
+/*LOGIN REGISTER WITH PHONE NUMBER AND OTP*/
+
 // SendOTP
-export const sendOTP = async (req, res) => {
+const sendOTP = async (req, res) => {
   // Finds the validation errors in this request and wraps them in an object with handy functions
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res
       .status(400)
-      .json({ status: "Error", message: errors["errors"][0].msg });
+      .json({ error: true, message: errors["errors"][0].msg });
   }
 
   try {
     const code = Math.floor(100000 + Math.random() * 900000);
     const expired = Date.now() + 2 * 60 * 1000; // 2menit
-    const phoneNumber = phoneNumberFormatter(req.body.phone_number);
+    const phoneNumber = formatter.phoneNumberFormatter(req.body.phone_number);
     await Otp.create({
       phone_number: phoneNumber,
       code: code,
@@ -53,7 +56,7 @@ export const sendOTP = async (req, res) => {
         console.log(error);
       });
     res.status(200).json({
-      status: "OK",
+      error: null,
       code: code,
       nohp: phoneNumber,
     });
@@ -63,7 +66,7 @@ export const sendOTP = async (req, res) => {
 };
 
 //LOGIN
-export const Login = async (req, res) => {
+const Login = async (req, res) => {
   try {
     const nohp = req.phone_number;
     const code = req.code;
@@ -88,25 +91,26 @@ export const Login = async (req, res) => {
         }
       );
       res.status(200).json({
-        status: "OK",
-        register: "true",
+        error: null,
+        register: true,
         register_token: registerToken,
       });
     } else {
       const userId = user.id;
+      const levelId = user.level_id;
       const name = user.username;
       const phone_number = user.phone_number;
 
       // generate accessToken
       const accessToken = jwt.sign(
-        { userId, name, phone_number },
+        { userId, levelId, name, phone_number },
         process.env.ACCESS_TOKEN_SECRET,
         { expiresIn: "20s" }
       );
 
       // generate refreshToken
       const refreshToken = jwt.sign(
-        { userId, name, phone_number },
+        { userId, levelId, name, phone_number },
         process.env.REFRESH_TOKEN_SECRET,
         { expiresIn: "1d" }
       );
@@ -127,7 +131,7 @@ export const Login = async (req, res) => {
         maxAge: 24 * 60 * 60 * 1000, // gunakan secure : true untuk https
       });
 
-      res.json({ status: "OK", register: "false", accessToken });
+      res.json({ error: null, register: null, accessToken });
     }
   } catch (error) {
     res.status(500).json("Login error: " + error);
@@ -135,7 +139,7 @@ export const Login = async (req, res) => {
 };
 
 // REGISTER
-export const Register = async (req, res) => {
+const Register = async (req, res) => {
   try {
     const create = await Users.create({
       phone_number: req.phoneNumber, // dari middleware register
@@ -146,17 +150,18 @@ export const Register = async (req, res) => {
     });
     const userId = create.id;
     const name = create.username;
+    const levelId = create.level_id;
     const phone_number = create.phone_number;
     // generate accessToken
     const accessToken = jwt.sign(
-      { userId, name, phone_number },
+      { userId, levelId, name, phone_number },
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: "20s" }
     );
 
     // generate refreshToken
     const refreshToken = jwt.sign(
-      { userId, name, phone_number },
+      { userId, levelId, name, phone_number },
       process.env.REFRESH_TOKEN_SECRET,
       { expiresIn: "1d" }
     );
@@ -177,17 +182,19 @@ export const Register = async (req, res) => {
     });
     res
       .status(200)
-      .json({ status: "OK", message: "Register berhasil", accessToken });
+      .json({ error: null, message: "Register berhasil", accessToken });
   } catch (error) {
     res.status(403).json({
-      status: "Error",
+      error: true,
       message: error.errors[0].message,
     });
   }
 };
 
+/*END OF LOGIN REGISTER WITH PHONE NUMBER AND OTP*/
+
 // LOGOUT
-export const Logout = async (req, res) => {
+const Logout = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
   if (!refreshToken) return res.sendStatus(204); // no content
   const user = await Users.findOne({
@@ -206,5 +213,7 @@ export const Logout = async (req, res) => {
     }
   );
   res.clearCookie("refreshToken");
-  return res.status(200).json({ status: "OK", message: "Berhasil logout" });
+  return res.status(200).json({ error: null, message: "Berhasil logout" });
 };
+
+module.exports = { sendOTP, Login, Register, Logout };
