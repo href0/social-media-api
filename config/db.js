@@ -1,12 +1,12 @@
-// const { Sequelize } = require("sequelize");
+const { Sequelize } = require("sequelize");
 
-// const db = new Sequelize("auth", "root", "", {
-//   host: "localhost",
-//   dialect: "mysql",
-//   timezone: "+07:00",
-// });
+const db = new Sequelize("auth", "root", "", {
+  host: "localhost",
+  dialect: "mysql",
+  timezone: "+07:00",
+});
 
-// module.exports = db;
+module.exports = db;
 
 // const { Sequelize } = require("sequelize");
 
@@ -21,13 +21,13 @@
 //   }
 // );
 
-module.exports = db;
-const { Sequelize } = require("sequelize");
+// module.exports = db;
+// const { Sequelize } = require("sequelize");
 
-const db = new Sequelize("auth", "root", "Jarumcoklat.123", {
-  host: "localhost",
-  dialect: "mysql",
-  timezone: "+07:00",
-});
+// const db = new Sequelize("auth", "root", "Jarumcoklat.123", {
+//   host: "localhost",
+//   dialect: "mysql",
+//   timezone: "+07:00",
+// });
 
-module.exports = db;
+// module.exports = db;

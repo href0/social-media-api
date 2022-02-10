@@ -1,10 +1,16 @@
 const router = require("express").Router();
+
+// CONTROLLER
 const authController = require("../controllers/Auth.js");
 const userController = require("../controllers/User.js");
+const postController = require("../controllers/Post.js");
 
+// MIDDLEWARE
 const verifyTokenMiddleware = require("../middleware/VerifyToken.js");
 const verifyOtpMiddleware = require("../middleware/VerifyOtp.js");
 const verifyRegisterMiddleware = require("../middleware/Register.js");
+const uploadMiddleware = require("../middleware/Upload.js");
+const socialAuthMiddleware = require("../middleware/SocialAuth.js");
 
 const refreshTokenController = require("../controllers/RefreshToken.js");
 const { check, validationResult } = require("express-validator");
@@ -29,6 +35,12 @@ router.post(
   verifyRegisterMiddleware.RegisterMiddleware,
   authController.Register
 );
+// GOOGLE
+router.post(
+  "/auth/social",
+  socialAuthMiddleware.verifyToken,
+  authController.LoginSocial
+);
 router.delete("/auth/logout", authController.Logout);
 
 // Users
@@ -47,6 +59,8 @@ router.put(
   verifyTokenMiddleware.verifyToken,
   userController.updateUser
 );
+
+// FOLLOW UNFOLLOW
 router.post(
   "/user/follow/:username",
   verifyTokenMiddleware.verifyToken,
@@ -60,5 +74,13 @@ router.delete(
 
 // Token
 router.get("/token", refreshTokenController.refreshToken);
+
+// POSTS
+router.post(
+  "/post",
+  verifyTokenMiddleware.verifyToken,
+  uploadMiddleware.upload,
+  postController.create
+);
 
 module.exports = router;

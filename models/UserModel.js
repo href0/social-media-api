@@ -17,8 +17,12 @@ const Users = db.define(
       type: DataTypes.STRING,
       unique: { msg: "Username sudah terdaftar" },
     },
-    login_with: {
+    provider: {
+      type: DataTypes.ENUM("phone", "google", "facebook", "tiktok"),
+    },
+    uid: {
       type: DataTypes.STRING,
+      unique: { msg: "Uid sudah terdaftar" },
     },
     id_card: {
       type: DataTypes.STRING,

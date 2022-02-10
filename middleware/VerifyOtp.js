@@ -1,15 +1,17 @@
 const Users = require("../models/UserModel.js");
 const Otp = require("../models/OtpModel.js");
+const formatter = require("../helper/formatter.js");
 
 // VerifyOTP
 const verifyOtp = async (req, res, next) => {
   try {
-    const nohp = req.body.phone_number;
+    const noHpFormatted = formatter.phoneNumberFormatter(req.body.phone_number);
+    // const nohp = req.body.phone_number;
     const code = req.body.code;
     const otp = await Otp.findOne({
       limit: 1,
       where: {
-        phone_number: nohp,
+        phone_number: noHpFormatted,
       },
       order: [["expired", "DESC"]],
     });

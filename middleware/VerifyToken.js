@@ -8,6 +8,7 @@ const verifyToken = (req, res, next) => {
   // jika token ada, maka verify tokennya
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
     if (err) return res.sendStatus(403); // Forbidden
+    req.userId = decoded.userId;
     req.username = decoded.name;
     req.phone = decoded.phone_number;
     req.levelId = decoded.levelId;
