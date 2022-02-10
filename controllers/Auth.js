@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const axios = require("axios");
 const { validationResult } = require("express-validator");
 const formatter = require("../helper/formatter.js");
+const generateToken = require("../helper/GenerateToken.js");
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -104,37 +105,30 @@ const Login = async (req, res) => {
       const phone_number = user.phone_number;
       const provider = "phone";
 
-      // generate accessToken
-      const accessToken = jwt.sign(
-        { userId, levelId, name, phone_number, email, full_name, provider },
-        process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: "20s" }
+      const getToken = await generateToken.generateToken(
+        userId,
+        levelId,
+        name,
+        phone_number,
+        email,
+        full_name,
+        provider
       );
 
-      // generate refreshToken
-      const refreshToken = jwt.sign(
-        { userId, levelId, name, phone_number, email, full_name, provider },
-        process.env.REFRESH_TOKEN_SECRET,
-        { expiresIn: "1d" }
-      );
-
-      // update refreshToken
-      await Users.update(
-        { refresh_token: refreshToken },
-        {
-          where: { id: userId },
-        }
-      );
+      if (getToken) {
+        res.cookie("refreshToken", getToken.refreshToken, {
+          httpOnly: true,
+          maxAge: 24 * 60 * 60 * 1000, // gunakan secure : true untuk https
+        });
+      }
       // delete code otp dari database
       await Otp.destroy({ where: { phone_number: user.phone_number } });
 
-      // cookie httponly
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000, // gunakan secure : true untuk https
+      res.json({
+        error: null,
+        register: null,
+        accessToken: getToken.accessToken,
       });
-
-      res.json({ error: null, register: null, accessToken });
     }
   } catch (error) {
     res.status(500).json("Login error: " + error);
@@ -160,42 +154,60 @@ const Register = async (req, res) => {
     const levelId = create.level_id;
     const phone_number = create.phone_number;
     const provider = "phone";
-    // generate accessToken
-    const accessToken = jwt.sign(
-      { userId, levelId, name, phone_number, email, full_name, provider },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "20s" }
+
+    const getToken = await generateToken.generateToken(
+      userId,
+      levelId,
+      name,
+      phone_number,
+      email,
+      full_name,
+      provider
     );
 
-    // generate refreshToken
-    const refreshToken = jwt.sign(
-      { userId, levelId, name, phone_number, email, full_name, provider },
-      process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: "1d" }
-    );
-
-    // update refreshToken
-    await Users.update(
-      { refresh_token: refreshToken },
-      {
-        where: { id: userId },
-      }
-    );
+    if (getToken) {
+      res.cookie("refreshToken", getToken.refreshToken, {
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000, // gunakan secure : true untuk https
+      });
+    } else {
+      return res
+        .status(400)
+        .json({ error: true, message: "Terjadi kesalahan" });
+    }
 
     await Otp.destroy({ where: { phone_number: req.phoneNumber } });
-    // cookie httponly
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // gunakan secure : true untuk https
+
+    res.status(200).json({
+      error: null,
+      message: "Register berhasil",
+      accessToken: getToken.accessToken,
     });
-    res
-      .status(200)
-      .json({ error: null, message: "Register berhasil", accessToken });
   } catch (error) {
     res.status(403).json({
       error: true,
       message: error.errors[0].message,
     });
+  }
+};
+
+// CHECK USERNAME
+const checkUsername = async (req, res) => {
+  try {
+    const checkUser = await Users.findOne({
+      where: { username: req.body.username },
+    });
+    if (checkUser) {
+      return res
+        .status(401)
+        .json({ error: true, message: "Username sudah terpakai" });
+    } else {
+      return res
+        .status(200)
+        .json({ error: null, message: "Username bisa dipakai" });
+    }
+  } catch (error) {
+    return res.status(401).json({ error });
   }
 };
 
@@ -233,36 +245,29 @@ const LoginSocial = async (req, res) => {
       const email = create.email;
       const phone_number = null;
       const provider = providerMiddleware;
-      // generate accessToken
-      const accessToken = jwt.sign(
-        { userId, levelId, name, phone_number, email, full_name, provider },
-        process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: "20s" }
+
+      const getToken = await generateToken.generateToken(
+        userId,
+        levelId,
+        name,
+        phone_number,
+        email,
+        full_name,
+        provider
       );
 
-      // generate refreshToken
-      const refreshToken = jwt.sign(
-        { userId, levelId, name, phone_number, email, full_name, provider },
-        process.env.REFRESH_TOKEN_SECRET,
-        { expiresIn: "1d" }
-      );
+      if (getToken) {
+        res.cookie("refreshToken", getToken.refreshToken, {
+          httpOnly: true,
+          maxAge: 24 * 60 * 60 * 1000, // gunakan secure : true untuk https
+        });
+      }
 
-      // update refreshToken
-      await Users.update(
-        { refresh_token: refreshToken },
-        {
-          where: { id: userId },
-        }
-      );
-
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000, // gunakan secure : true untuk https
+      res.status(200).json({
+        error: null,
+        message: "Register berhasil",
+        accessToken: getToken.accessToken,
       });
-
-      res
-        .status(200)
-        .json({ error: null, message: "Register berhasil", accessToken });
     } else {
       // check provider yang login apakah sama, jika tidak sama maka email sudah terdaftar tapi berdeda provider
       if (user.provider != providerMiddleware) {
@@ -314,35 +319,28 @@ const LoginSocial = async (req, res) => {
       const email = user.email;
       const provider = providerMiddleware;
 
-      // generate accessToken
-      const accessToken = jwt.sign(
-        { userId, levelId, name, phone_number, email, full_name, provider },
-        process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: "20s" }
+      const getToken = await generateToken.generateToken(
+        userId,
+        levelId,
+        name,
+        phone_number,
+        email,
+        full_name,
+        provider
       );
 
-      // generate refreshToken
-      const refreshToken = jwt.sign(
-        { userId, levelId, name, phone_number, email, full_name, provider },
-        process.env.REFRESH_TOKEN_SECRET,
-        { expiresIn: "1d" }
-      );
+      if (getToken) {
+        res.cookie("refreshToken", getToken.refreshToken, {
+          httpOnly: true,
+          maxAge: 24 * 60 * 60 * 1000, // gunakan secure : true untuk https
+        });
+      }
 
-      // update refreshToken
-      await Users.update(
-        { refresh_token: refreshToken },
-        {
-          where: { id: userId },
-        }
-      );
-
-      // cookie httponly
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000, // gunakan secure : true untuk https
+      res.json({
+        error: null,
+        register: null,
+        accessToken: getToken.accessToken,
       });
-
-      res.json({ error: null, register: null, accessToken });
     }
   } catch (error) {
     res.status(500).json("Login error: " + error);
@@ -374,4 +372,11 @@ const Logout = async (req, res) => {
   return res.status(200).json({ error: null, message: "Berhasil logout" });
 };
 
-module.exports = { sendOTP, Login, Register, Logout, LoginSocial };
+module.exports = {
+  sendOTP,
+  Login,
+  Register,
+  Logout,
+  LoginSocial,
+  checkUsername,
+};

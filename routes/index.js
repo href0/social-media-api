@@ -16,7 +16,9 @@ const refreshTokenController = require("../controllers/RefreshToken.js");
 const { check, validationResult } = require("express-validator");
 const verifyOtp = require("../middleware/VerifyOtp.js");
 
-//Auth
+/* AUTH*/
+
+// SEND OTP
 router.post(
   "/auth",
   check("phone_number")
@@ -28,20 +30,31 @@ router.post(
     .withMessage("No handphone tidak valids"),
   authController.sendOTP
 );
-// router.post("/auth/otp", verifyOtp);
+
+// LOGIN
 router.post("/auth/login", verifyOtpMiddleware.verifyOtp, authController.Login);
+
+// REGISTER
 router.post(
   "/auth/register",
   verifyRegisterMiddleware.RegisterMiddleware,
   authController.Register
 );
-// GOOGLE
+
+// SOCIAL AUTH
 router.post(
   "/auth/social",
   socialAuthMiddleware.verifyToken,
   authController.LoginSocial
 );
+
+// CHECK USERNAME
+router.post("/auth/checkusername", authController.checkUsername);
+
+// LOGOUT
 router.delete("/auth/logout", authController.Logout);
+
+/* END AUTH*/
 
 // Users
 router.get(
