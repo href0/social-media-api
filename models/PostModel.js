@@ -1,14 +1,15 @@
 const { Sequelize } = require("sequelize");
 const db = require("../config/db.js");
+const Users = require("./UserModel.js");
 
 const { DataTypes } = Sequelize;
 
 const Post = db.define(
   "posts",
   {
-    user_id: {
-      type: DataTypes.INTEGER,
-    },
+    // user_id: {
+    //   type: DataTypes.INTEGER,
+    // },
     title_post: {
       type: DataTypes.STRING,
     },

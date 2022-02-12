@@ -85,15 +85,48 @@ router.delete(
   userController.unfollowUser
 );
 
+// get Followers
+router.get(
+  "/user/:id/followers",
+  verifyTokenMiddleware.verifyToken,
+  userController.getFollowers
+);
+// get Following
+router.get(
+  "/user/:id/following",
+  verifyTokenMiddleware.verifyToken,
+  userController.getFollowing
+);
+
 // Token
 router.get("/token", refreshTokenController.refreshToken);
 
-// POSTS
+/* CRUD POST */
+
+// CREATE
 router.post(
   "/post",
   verifyTokenMiddleware.verifyToken,
   uploadMiddleware.upload,
   postController.create
 );
+
+// UPDATE
+router.put(
+  "/post/:id",
+  check("title").notEmpty().withMessage("Title tidak boleh kosong"),
+  postController.update
+);
+
+// DELETE
+router.delete("/post/:id", postController.deletePost);
+
+// GET A POST
+router.get("/post/:id", postController.getPost);
+
+// GET ALL POST
+router.get("/post/", postController.getAll);
+
+/* END CRUD POST */
 
 module.exports = router;

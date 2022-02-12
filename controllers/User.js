@@ -1,7 +1,7 @@
 const Users = require("../models/UserModel.js");
 const Follows = require("../models/FollowModel.js");
 
-// Get ALL Users
+// GET ALL USERS
 const getUsers = async (req, res) => {
   try {
     const users = await Users.findAll({
@@ -15,7 +15,7 @@ const getUsers = async (req, res) => {
   }
 };
 
-// Get a User
+// GET USER
 const getUser = async (req, res) => {
   try {
     const user = await Users.findOne({
@@ -29,7 +29,7 @@ const getUser = async (req, res) => {
   }
 };
 
-// Update User
+// UPDATE USER
 const updateUser = async (req, res) => {
   // cek user yang ingin melakukan update sesuai dengan usernamenya atau yang ingin melakukan update adalah admmin
   if (
@@ -60,7 +60,7 @@ const updateUser = async (req, res) => {
   }
 };
 
-// Follow a user
+// FOLLOW A USER
 const followUser = async (req, res) => {
   const senderUsername = req.username;
   const receiverUsername = req.params.username;
@@ -111,10 +111,12 @@ const followUser = async (req, res) => {
         message: "Kamu tidak bisa follow akunmu sendiri",
       });
     }
-  } catch (error) {}
+  } catch (error) {
+    res.status(500).json({ error: true, message: error });
+  }
 };
 
-// Unfollow a user
+// UNFOLLOW A USER
 const unfollowUser = async (req, res) => {
   const senderUsername = req.username;
   const receiverUsername = req.params.username;
@@ -171,4 +173,60 @@ const unfollowUser = async (req, res) => {
   } catch (error) {}
 };
 
-module.exports = { getUsers, getUser, updateUser, followUser, unfollowUser };
+// GET FOLLOWING
+const getFollowers = async (req, res) => {
+  try {
+    const follow = await Follows.findAll({
+      where: {
+        receiver_id: req.params.id,
+      },
+      include: [
+        {
+          model: Users,
+          as: "sender",
+        },
+        {
+          model: Users,
+          as: "me",
+        },
+      ],
+    });
+    return res.status(200).json({ error: null, message: follow });
+  } catch (error) {
+    res.status(500).json({ error: true, message: error });
+  }
+};
+
+// GET FOLLOWING
+const getFollowing = async (req, res) => {
+  try {
+    const follow = await Follows.findAll({
+      where: {
+        sender_id: req.params.id,
+      },
+      include: [
+        {
+          model: Users,
+          as: "me",
+        },
+        {
+          model: Users,
+          as: "receiver",
+        },
+      ],
+    });
+    return res.status(200).json({ error: null, message: follow });
+  } catch (error) {
+    res.status(500).json({ error: true, message: error });
+  }
+};
+
+module.exports = {
+  getUsers,
+  getUser,
+  updateUser,
+  followUser,
+  unfollowUser,
+  getFollowers,
+  getFollowing,
+};

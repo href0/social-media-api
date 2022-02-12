@@ -5,14 +5,7 @@ const { DataTypes } = Sequelize;
 
 const Follows = db.define(
   "follows",
-  {
-    sender_id: {
-      type: DataTypes.INTEGER,
-    },
-    receiver_id: {
-      type: DataTypes.INTEGER,
-    },
-  },
+  {},
   {
     freezeTableName: true,
   }

@@ -28,22 +28,17 @@ const koneksi = async () => {
   try {
     await db.authenticate();
     console.log("Database connected!");
-    await Users.sync();
-    await Otp.sync();
-    await Follows.sync();
-    await Posts.sync();
+    await Users.sync({ alter: true });
+    await Otp.sync({ alter: true });
+    await Follows.sync({ alter: true });
+    await Posts.sync({ alter: true });
   } catch (error) {
     console.error("Database Error: " + error);
   }
 };
 koneksi();
 app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
-// app.use(
-//   multer({
-//     storage: uploadImage.fileStorage,
-//     fileFilter: uploadImage.fileFilter,
-//   }).single("image")
-// );
+
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

@@ -9,7 +9,10 @@ const verifyToken = (req, res, next) => {
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
     if (err) return res.sendStatus(403); // Forbidden
     req.userId = decoded.userId;
-    req.username = decoded.name;
+    req.username = decoded.username;
+    req.email = decoded.email;
+    req.provider = decoded.provider;
+    req.fullName = decoded.full_name;
     req.phone = decoded.phone_number;
     req.levelId = decoded.levelId;
     next();

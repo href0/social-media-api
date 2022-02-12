@@ -1,5 +1,7 @@
 const { Sequelize } = require("sequelize");
 const db = require("../config/db.js");
+const Follows = require("./FollowModel.js");
+const Post = require("./PostModel.js");
 
 const { DataTypes } = Sequelize;
 
@@ -79,4 +81,15 @@ const Users = db.define(
   { freezeTableName: true }
 );
 
+Users.hasMany(Post, { foreignKey: { allowNull: false } });
+Post.belongsTo(Users);
+
+Users.hasMany(Follows, {
+  foreignKey: { name: "sender_id", allowNull: false },
+}); // ngefollow
+Users.hasMany(Follows, {
+  foreignKey: { name: "receiver_id", allowNull: false },
+}); // difollow
+Follows.belongsTo(Users, { as: "sender", foreignKey: "sender_id" });
+Follows.belongsTo(Users, { as: "receiver", foreignKey: "receiver_id" });
 module.exports = Users;

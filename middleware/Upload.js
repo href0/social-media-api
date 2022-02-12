@@ -1,4 +1,6 @@
+const res = require("express/lib/response");
 const multer = require("multer");
+const { validationResult } = require("express-validator");
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -21,6 +23,7 @@ const fileFilter = (req, file, cb) => {
   } else {
     cb(null, false);
     return cb(new Error("Onlu png jpg jpeg"));
+    // return res.status(400).json({ error: "error" });
   }
 };
 
@@ -32,10 +35,6 @@ const upload = async (req, res, next) => {
     }).single("image");
 
     upl(req, res, function (err) {
-      const file = req.file.path;
-      if (!file) {
-        return res.status(400).json(req.file);
-      }
       if (err instanceof multer.MulterError) {
         return res.status(406).json({
           status: "Error",
@@ -50,7 +49,9 @@ const upload = async (req, res, next) => {
       req.title = req.body.title;
       next();
     });
-  } catch (error) {}
+  } catch (error) {
+    return res.status(400).json(error);
+  }
 };
 
 module.exports = { upload };
