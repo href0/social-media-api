@@ -1,6 +1,7 @@
 const { Sequelize } = require("sequelize");
 const db = require("../config/db.js");
 const Follows = require("./FollowModel.js");
+const postLikes = require("./PostLikes.js");
 const Post = require("./PostModel.js");
 
 const { DataTypes } = Sequelize;
@@ -92,4 +93,10 @@ Users.hasMany(Follows, {
 }); // difollow
 Follows.belongsTo(Users, { as: "sender", foreignKey: "sender_id" });
 Follows.belongsTo(Users, { as: "receiver", foreignKey: "receiver_id" });
+
+Post.hasMany(postLikes);
+postLikes.belongsTo(Post);
+Users.hasMany(postLikes);
+postLikes.belongsTo(Users);
+
 module.exports = Users;

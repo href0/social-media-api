@@ -1,5 +1,6 @@
 const Users = require("../models/UserModel.js");
 const Follows = require("../models/FollowModel.js");
+const { Op } = require("sequelize");
 
 // GET ALL USERS
 const getUsers = async (req, res) => {
@@ -8,10 +9,12 @@ const getUsers = async (req, res) => {
       attributes: ["id", "username", "phone_number"],
     });
     res.status(200).json({
-      users,
+      error: null,
+      message: users,
     });
   } catch (error) {
     console.error("getUserError: " + error);
+    return res.status(500).json({ error: true, message: error.message });
   }
 };
 
@@ -23,7 +26,7 @@ const getUser = async (req, res) => {
         username: req.params.username,
       },
     });
-    res.status(200).json({ user });
+    res.status(200).json({ error: null, message: user });
   } catch (error) {
     console.error("getUserError: " + error);
   }
@@ -46,9 +49,13 @@ const updateUser = async (req, res) => {
           .status(404)
           .json({ error: true, message: "User tidak ditemukan" });
 
-      await Users.update(req.body, {
-        where: { username: req.params.username },
-      });
+      if (!req.file) {
+        await checkUser.update(req.body);
+      } else {
+        const image = req.file.path;
+        await checkUser.update({ profile_picture: image });
+      }
+
       res.status(200).json({ error: null, message: "User berhasil diupdate" });
     } catch (error) {
       res.status(403).json({ error: true, message: error.errors[0].message });
@@ -57,6 +64,31 @@ const updateUser = async (req, res) => {
     res
       .status(403)
       .json({ error: true, message: "Kamu tidak dapat akses ini" });
+  }
+};
+
+// UPDATE AVATAR USER
+const updateAvatar = async (req, res) => {
+  if (!req.file)
+    return res
+      .status(404)
+      .json({ error: true, message: "Gambar harus diupload" });
+
+  const image = req.file.path;
+  try {
+    const checkUser = await Users.findOne({
+      where: { username: req.params.username },
+    });
+    if (!checkUser)
+      return res
+        .status(404)
+        .json({ error: true, message: "User tidak ditemukan" });
+    await Users.update(req.body, {
+      where: { username: req.params.username },
+    });
+    res.status(200).json({ error: null, message: addPost });
+  } catch (error) {
+    res.status(400).json(error);
   }
 };
 
@@ -79,7 +111,7 @@ const followUser = async (req, res) => {
 
       //check username yang difollow apakah ada
       if (!receiverUser)
-        res.status(404).json({
+        return res.status(404).json({
           error: true,
           message: "Username tidak ditemukan",
         });
@@ -187,10 +219,11 @@ const getFollowers = async (req, res) => {
         },
         {
           model: Users,
-          as: "me",
+          as: "receiver",
         },
       ],
     });
+
     return res.status(200).json({ error: null, message: follow });
   } catch (error) {
     res.status(500).json({ error: true, message: error });
@@ -207,7 +240,7 @@ const getFollowing = async (req, res) => {
       include: [
         {
           model: Users,
-          as: "me",
+          as: "sender",
         },
         {
           model: Users,
@@ -221,6 +254,27 @@ const getFollowing = async (req, res) => {
   }
 };
 
+// SEARCH USER
+const searchUser = async (req, res) => {
+  try {
+    if (req.query.username == "")
+      return res
+        .status(404)
+        .json({ error: true, message: "masukkan username yang ingin dicari" });
+    const user = await Users.findAll({
+      attributes: {
+        exclude: ["refresh_token"],
+      },
+      where: {
+        username: { [Op.like]: `%${req.query.username}%` },
+      },
+    });
+    return res.status(200).json({ error: null, message: user });
+  } catch (error) {
+    return res.status(500).json({ error: true, message: error.message });
+  }
+};
+
 module.exports = {
   getUsers,
   getUser,
@@ -229,4 +283,6 @@ module.exports = {
   unfollowUser,
   getFollowers,
   getFollowing,
+  searchUser,
+  updateAvatar,
 };

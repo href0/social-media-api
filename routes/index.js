@@ -70,6 +70,7 @@ router.get(
 router.put(
   "/user/:username",
   verifyTokenMiddleware.verifyToken,
+  uploadMiddleware.uploadAvatar,
   userController.updateUser
 );
 
@@ -98,6 +99,9 @@ router.get(
   userController.getFollowing
 );
 
+// SEARCH USER
+router.get("/search", userController.searchUser);
+
 // Token
 router.get("/token", refreshTokenController.refreshToken);
 
@@ -107,7 +111,7 @@ router.get("/token", refreshTokenController.refreshToken);
 router.post(
   "/post",
   verifyTokenMiddleware.verifyToken,
-  uploadMiddleware.upload,
+  uploadMiddleware.uploadPost,
   postController.create
 );
 
@@ -119,13 +123,44 @@ router.put(
 );
 
 // DELETE
-router.delete("/post/:id", postController.deletePost);
+router.delete(
+  "/post/:id",
+  verifyTokenMiddleware.verifyToken,
+  postController.deletePost
+);
 
 // GET A POST
-router.get("/post/:id", postController.getPost);
+router.get(
+  "/post/:id",
+  verifyTokenMiddleware.verifyToken,
+  postController.getPost
+);
 
 // GET ALL POST
-router.get("/post/", postController.getAll);
+router.get("/posts/", verifyTokenMiddleware.verifyToken, postController.getAll);
+
+// LIKE A POST
+router.post(
+  "/post/like/:id",
+  verifyTokenMiddleware.verifyToken,
+  postController.likePost
+);
+// UNLIKE A POST
+router.delete(
+  "/post/unlike/:id",
+  verifyTokenMiddleware.verifyToken,
+  postController.unlikePost
+);
+
+// TIMELINE
+router.get(
+  "/timeline",
+  verifyTokenMiddleware.verifyToken,
+  postController.timeline
+);
+
+// SEARCH POST
+router.get("/posts/search", postController.searchPosts);
 
 /* END CRUD POST */
 

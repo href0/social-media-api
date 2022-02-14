@@ -14,6 +14,7 @@ const Users = require("./models/UserModel.js");
 const Otp = require("./models/OtpModel.js");
 const Follows = require("./models/FollowModel.js");
 const Posts = require("./models/PostModel");
+const postLikes = require("./models/PostLikes");
 
 const cors = require("cors");
 const http = require("http");
@@ -32,13 +33,14 @@ const koneksi = async () => {
     await Otp.sync({ alter: true });
     await Follows.sync({ alter: true });
     await Posts.sync({ alter: true });
+    await postLikes.sync({ alter: true });
   } catch (error) {
     console.error("Database Error: " + error);
   }
 };
 koneksi();
 app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
-
+app.use("/assets", express.static("assets"));
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
