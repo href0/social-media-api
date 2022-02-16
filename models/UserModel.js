@@ -1,5 +1,6 @@
 const { Sequelize } = require("sequelize");
 const db = require("../config/db.js");
+const Comment = require("./CommentModel.js");
 const Follows = require("./FollowModel.js");
 const postLikes = require("./PostLikes.js");
 const Post = require("./PostModel.js");
@@ -98,5 +99,15 @@ Post.hasMany(postLikes);
 postLikes.belongsTo(Post);
 Users.hasMany(postLikes);
 postLikes.belongsTo(Users);
+
+// COMMENTS
+Users.hasMany(Comment); // ngefollow
+Users.hasMany(Comment, {
+  foreignKey: { name: "parentId", allowNull: false },
+}); // ngefollow
+Post.hasMany(Comment); // difollow
+Comment.belongsTo(Users);
+Comment.belongsTo(Users, { as: "parentComment", foreignKey: "parentId" });
+Comment.belongsTo(Users);
 
 module.exports = Users;

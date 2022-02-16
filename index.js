@@ -15,6 +15,7 @@ const Otp = require("./models/OtpModel.js");
 const Follows = require("./models/FollowModel.js");
 const Posts = require("./models/PostModel");
 const postLikes = require("./models/PostLikes");
+const Comment = require("./models/CommentModel");
 
 const cors = require("cors");
 const http = require("http");
@@ -34,6 +35,7 @@ const koneksi = async () => {
     await Follows.sync({ alter: true });
     await Posts.sync({ alter: true });
     await postLikes.sync({ alter: true });
+    await Comment.sync();
   } catch (error) {
     console.error("Database Error: " + error);
   }

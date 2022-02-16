@@ -278,6 +278,10 @@ const searchPosts = async (req, res) => {
   }
 };
 
+// GET USER POSTS
+// COMMENT
+// LIKE COMMENT
+
 module.exports = {
   create,
   update,

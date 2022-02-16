@@ -275,6 +275,9 @@ const searchUser = async (req, res) => {
   }
 };
 
+// USER POST LIKE
+// ADD EMAIL WITH OTP
+
 module.exports = {
   getUsers,
   getUser,
