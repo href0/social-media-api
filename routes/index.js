@@ -4,6 +4,8 @@ const router = require("express").Router();
 const authController = require("../controllers/Auth.js");
 const userController = require("../controllers/User.js");
 const postController = require("../controllers/Post.js");
+const commentController = require("../controllers/Comment.js");
+const replyComment = require("../controllers/ReplyComment.js");
 
 // MIDDLEWARE
 const verifyTokenMiddleware = require("../middleware/VerifyToken.js");
@@ -117,7 +119,7 @@ router.post(
 
 // UPDATE
 router.put(
-  "/post/:id",
+  "/post/:id?",
   check("title").notEmpty().withMessage("Title tidak boleh kosong"),
   postController.update
 );
@@ -131,9 +133,16 @@ router.delete(
 
 // GET A POST
 router.get(
-  "/post/:id",
+  "/post/:id?",
   verifyTokenMiddleware.verifyToken,
   postController.getPost
+);
+
+// GET USER POSTS
+router.get(
+  "/post/user/:userid",
+  verifyTokenMiddleware.verifyToken,
+  postController.getUserPosts
 );
 
 // GET ALL POST
@@ -141,13 +150,13 @@ router.get("/posts/", verifyTokenMiddleware.verifyToken, postController.getAll);
 
 // LIKE A POST
 router.post(
-  "/post/like/:id",
+  "/like_post",
   verifyTokenMiddleware.verifyToken,
   postController.likePost
 );
 // UNLIKE A POST
 router.delete(
-  "/post/unlike/:id",
+  "/unlike_post",
   verifyTokenMiddleware.verifyToken,
   postController.unlikePost
 );
@@ -163,5 +172,83 @@ router.get(
 router.get("/posts/search", postController.searchPosts);
 
 /* END CRUD POST */
+
+/* CRUD COMMENT */
+
+// CREATE
+router.post(
+  "/comment",
+  verifyTokenMiddleware.verifyToken,
+  commentController.addComment
+);
+
+// UPDATE
+router.put(
+  "/comment/:id?",
+  verifyTokenMiddleware.verifyToken,
+  commentController.update
+);
+
+// DELETE
+router.delete(
+  "/comment/:id?",
+  verifyTokenMiddleware.verifyToken,
+  commentController.deleteComment
+);
+
+// LIKE COMMENT
+router.post(
+  "/like_comment",
+  verifyTokenMiddleware.verifyToken,
+  commentController.likeComment
+);
+
+// UNLIKE COMMENT
+router.delete(
+  "/unlike_comment",
+  verifyTokenMiddleware.verifyToken,
+  commentController.deleteLike
+);
+
+/* END CRUD COMMENT */
+
+/* CRUD REPLY COMMENT */
+
+// CREATE
+router.post(
+  "/replycomment",
+  verifyTokenMiddleware.verifyToken,
+  replyComment.replyComment
+);
+
+// UPDATE
+router.put(
+  "/replycomment/:id?",
+  verifyTokenMiddleware.verifyToken,
+  replyComment.update
+);
+
+// DELETE
+router.delete(
+  "/replycomment/:id?",
+  verifyTokenMiddleware.verifyToken,
+  replyComment.deleteComment
+);
+
+// LIKE COMMENT
+router.post(
+  "/like_replycomment",
+  verifyTokenMiddleware.verifyToken,
+  replyComment.likeComment
+);
+
+// UNLIKE COMMENT
+router.delete(
+  "/unlike_replycomment",
+  verifyTokenMiddleware.verifyToken,
+  replyComment.deleteLike
+);
+
+/* END CRUD REPLY COMMENT */
 
 module.exports = router;

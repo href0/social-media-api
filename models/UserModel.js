@@ -1,9 +1,12 @@
 const { Sequelize } = require("sequelize");
 const db = require("../config/db.js");
+const replyComment = require("./replyComment.js");
 const Comment = require("./CommentModel.js");
 const Follows = require("./FollowModel.js");
 const postLikes = require("./PostLikes.js");
 const Post = require("./PostModel.js");
+const commentLike = require("./CommentLike.js");
+const replyCommentLike = require("./ReplyCommentLike.js");
 
 const { DataTypes } = Sequelize;
 
@@ -102,12 +105,31 @@ postLikes.belongsTo(Users);
 
 // COMMENTS
 Users.hasMany(Comment); // ngefollow
-Users.hasMany(Comment, {
-  foreignKey: { name: "parentId", allowNull: false },
-}); // ngefollow
+
 Post.hasMany(Comment); // difollow
 Comment.belongsTo(Users);
-Comment.belongsTo(Users, { as: "parentComment", foreignKey: "parentId" });
 Comment.belongsTo(Users);
+
+// REPLY COMMENT
+Users.hasMany(replyComment);
+Users.hasMany(replyComment, {
+  foreignKey: { name: "parentId", allowNull: false },
+});
+Comment.hasMany(replyComment, { as: "reply", foreignKey: "commentId" });
+replyComment.belongsTo(Users);
+replyComment.belongsTo(Users, { as: "parent", foreignKey: "parentId" });
+replyComment.belongsTo(Comment);
+
+// COMEMNT LIKE
+Users.hasOne(commentLike);
+commentLike.belongsTo(Users);
+Comment.hasMany(commentLike);
+commentLike.belongsTo(Comment);
+
+// REPLY COMMENT LIKE
+Users.hasOne(replyCommentLike);
+replyCommentLike.belongsTo(Users);
+replyComment.hasMany(replyCommentLike);
+replyCommentLike.belongsTo(replyComment);
 
 module.exports = Users;

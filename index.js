@@ -16,6 +16,9 @@ const Follows = require("./models/FollowModel.js");
 const Posts = require("./models/PostModel");
 const postLikes = require("./models/PostLikes");
 const Comment = require("./models/CommentModel");
+const replyComment = require("./models/replyComment");
+const commentLike = require("./models/CommentLike");
+const replyCommentLike = require("./models/ReplyCommentLike");
 
 const cors = require("cors");
 const http = require("http");
@@ -36,13 +39,16 @@ const koneksi = async () => {
     await Posts.sync({ alter: true });
     await postLikes.sync({ alter: true });
     await Comment.sync();
+    await replyComment.sync();
+    await commentLike.sync();
+    await replyCommentLike.sync();
   } catch (error) {
     console.error("Database Error: " + error);
   }
 };
 koneksi();
 app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
-app.use("/assets", express.static("assets"));
+app.use("/assets/", express.static("assets"));
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

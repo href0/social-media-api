@@ -1,10 +1,12 @@
 const { validationResult } = require("express-validator");
 const Post = require("../models/PostModel");
 const Users = require("../models/UserModel");
-const Like = require("../models/PostLikes");
 const Follows = require("../models/FollowModel");
 const postLikes = require("../models/PostLikes");
+const Like = require("../models/PostLikes");
 const { Op } = require("sequelize");
+const Comment = require("../models/CommentModel");
+const replyComment = require("../models/replyComment");
 
 // create (VALIDASI BELUM ADA)
 const create = async (req, res) => {
@@ -82,15 +84,51 @@ const deletePost = async (req, res) => {
 // GET A POST
 const getPost = async (req, res) => {
   try {
+    if (!req.params.id) {
+      return res
+        .status(400)
+        .json({ errro: true, message: "Isi paramater terlebih dahulu" });
+    }
     const post = await Post.findOne({
       where: {
         id: req.params.id,
       },
-      include: {
-        attributes: ["username", "full_name", "profile_picture"],
-        model: Users,
-        required: true,
-      },
+      include: [
+        {
+          attributes: ["username", "full_name", "profile_picture"],
+          model: Users,
+          required: true,
+        },
+        {
+          attributes: ["userId"],
+          model: postLikes,
+        },
+        {
+          model: Comment,
+          required: false,
+          include: [
+            {
+              attributes: ["username", "full_name", "profile_picture"],
+              model: Users,
+            },
+            {
+              model: replyComment,
+              as: "reply",
+              include: [
+                {
+                  attributes: ["username", "full_name", "profile_picture"],
+                  model: Users,
+                },
+                {
+                  attributes: ["username"],
+                  as: "parent",
+                  model: Users,
+                },
+              ],
+            },
+          ],
+        },
+      ],
     });
     if (!post)
       return res
@@ -106,25 +144,57 @@ const getPost = async (req, res) => {
 const getAll = async (req, res) => {
   try {
     const posts = await Post.findAll({
+      order: [["UpdatedAt", "DESC"]],
       include: [
         {
-          model: Users,
           attributes: ["username", "full_name", "profile_picture"],
+          model: Users,
+          required: true,
+        },
+        {
+          attributes: ["userId"],
+          model: postLikes,
+        },
+        {
+          model: Comment,
+          required: false,
+          include: [
+            {
+              attributes: ["username", "full_name", "profile_picture"],
+              model: Users,
+            },
+            {
+              model: replyComment,
+              as: "reply",
+              include: [
+                {
+                  attributes: ["username", "full_name", "profile_picture"],
+                  model: Users,
+                },
+                {
+                  attributes: ["username"],
+                  as: "parent",
+                  model: Users,
+                },
+              ],
+            },
+          ],
         },
       ],
-      order: [["updatedAt", "DESC"]],
+      offset: req.body.offset ? req.body.offset : 0,
+      limit: req.body.limit ? req.body.limit : 10,
     });
 
     res.status(200).json({ error: null, message: posts });
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json({ error: true, message: error.message });
   }
 };
 
 // LIKE A POST
 const likePost = async (req, res) => {
   try {
-    const post = await Post.findOne({ where: { id: req.params.id } });
+    const post = await Post.findOne({ where: { id: req.body.postId } });
     if (!post)
       return res
         .status(404)
@@ -133,7 +203,7 @@ const likePost = async (req, res) => {
     const checkLike = await Like.findOne({
       where: {
         userId: req.userId,
-        postId: req.params.id,
+        postId: req.body.postId,
       },
     });
 
@@ -157,7 +227,7 @@ const likePost = async (req, res) => {
 // UNLIKE POST
 const unlikePost = async (req, res) => {
   try {
-    const post = await Post.findOne({ where: { id: req.params.id } });
+    const post = await Post.findOne({ where: { id: req.body.postId } });
     if (!post)
       return res
         .status(404)
@@ -166,14 +236,14 @@ const unlikePost = async (req, res) => {
     const checkLike = await Like.findOne({
       where: {
         userId: req.userId,
-        postId: req.params.id,
+        postId: req.body.postId,
       },
     });
 
     if (!checkLike)
       return res
         .status(400)
-        .json({ error: true, message: "Kamu belum like post ini" });
+        .json({ error: true, message: "Post belum dilike" });
 
     await Like.destroy({
       where: {
@@ -196,16 +266,44 @@ const timeline = async (req, res) => {
       where: {
         userId: req.userId,
       },
-      include: {
-        attributes: ["username", "full_name", "profile_picture"],
-        model: Users,
-        required: true,
-      },
-      include: {
-        attributes: ["id"],
-        model: postLikes,
-      },
-
+      include: [
+        {
+          attributes: ["username", "full_name", "profile_picture"],
+          model: Users,
+          required: true,
+        },
+        {
+          attributes: ["userId"],
+          model: postLikes,
+        },
+        {
+          model: Comment,
+          required: false,
+          include: [
+            {
+              attributes: ["username", "full_name", "profile_picture"],
+              model: Users,
+            },
+            {
+              model: replyComment,
+              as: "reply",
+              include: [
+                {
+                  attributes: ["username", "full_name", "profile_picture"],
+                  model: Users,
+                },
+                {
+                  attributes: ["username"],
+                  as: "parent",
+                  model: Users,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      offset: req.body.offset ? req.body.offset : 0,
+      limit: req.body.limit ? req.body.limit : 5,
       order: [["updatedAt", "DESC"]],
     });
 
@@ -221,15 +319,44 @@ const timeline = async (req, res) => {
           where: {
             userId: element.receiver_id,
           },
-          include: {
-            attributes: ["username", "full_name", "profile_picture"],
-            model: Users,
-            required: true,
-          },
-          include: {
-            attributes: ["id"],
-            model: postLikes,
-          },
+          include: [
+            {
+              attributes: ["username", "full_name", "profile_picture"],
+              model: Users,
+              required: true,
+            },
+            {
+              attributes: ["userId"],
+              model: postLikes,
+            },
+            {
+              model: Comment,
+              required: false,
+              include: [
+                {
+                  attributes: ["username", "full_name", "profile_picture"],
+                  model: Users,
+                },
+                {
+                  model: replyComment,
+                  as: "reply",
+                  include: [
+                    {
+                      attributes: ["username", "full_name", "profile_picture"],
+                      model: Users,
+                    },
+                    {
+                      attributes: ["username"],
+                      as: "parent",
+                      model: Users,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+          offset: req.body.offset ? req.body.offset : 0,
+          limit: req.body.limit ? req.body.limit : 5,
           order: [["updatedAt", "DESC"]],
         });
       })
@@ -279,7 +406,25 @@ const searchPosts = async (req, res) => {
 };
 
 // GET USER POSTS
-// COMMENT
+const getUserPosts = async (req, res) => {
+  try {
+    const posts = await Post.findAll({
+      where: {
+        userId: req.params.userid,
+      },
+      include: {
+        attributes: ["username", "full_name", "profile_picture"],
+        model: Users,
+        required: true,
+      },
+    });
+    res.status(200).json({ error: null, message: posts });
+  } catch (error) {
+    console.log("Error get User Posts : " + error);
+    res.status(500).json({ error: true, message: error.message });
+  }
+};
+
 // LIKE COMMENT
 
 module.exports = {
@@ -292,4 +437,5 @@ module.exports = {
   unlikePost,
   timeline,
   searchPosts,
+  getUserPosts,
 };

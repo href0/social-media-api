@@ -13,14 +13,14 @@ const generateToken = async (
   const accessToken = jwt.sign(
     { userId, levelId, username, phone_number, email, full_name, provider },
     process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: "20s" }
+    { expiresIn: "1d" }
   );
 
   // generate refreshToken
   const refreshToken = jwt.sign(
     { userId, levelId, username, phone_number, email, full_name, provider },
     process.env.REFRESH_TOKEN_SECRET,
-    { expiresIn: "1d" }
+    { expiresIn: "90d" }
   );
 
   // update refreshToken

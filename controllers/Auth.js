@@ -52,17 +52,19 @@ const sendOTP = async (req, res) => {
     await axios(config)
       .then(function (response) {
         console.log(JSON.stringify(response.data));
+        res.status(200).json({
+          error: null,
+          code: code,
+          nohp: phoneNumber,
+          message: response.data,
+        });
       })
       .catch(function (error) {
         console.log(error);
       });
-    res.status(200).json({
-      error: null,
-      code: code,
-      nohp: phoneNumber,
-    });
   } catch (error) {
     console.error("Auth error : " + error);
+    res.status(500).json(error);
   }
 };
 
@@ -118,7 +120,7 @@ const Login = async (req, res) => {
       if (getToken) {
         res.cookie("refreshToken", getToken.refreshToken, {
           httpOnly: true,
-          maxAge: 24 * 60 * 60 * 1000, // gunakan secure : true untuk https
+          maxAge: 24 * 60 * 60 * 90 * 1000, // gunakan secure : true untuk https
         });
       }
       // delete code otp dari database
