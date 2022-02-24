@@ -1,24 +1,26 @@
-const { Sequelize } = require("sequelize");
-
-const db = new Sequelize("auth", "root", "", {
-  host: "localhost",
-  dialect: "mysql",
-  timezone: "+07:00",
-});
-
-module.exports = db;
+const dotenv = require("dotenv");
+dotenv.config();
 // const { Sequelize } = require("sequelize");
 
-// const db = new Sequelize(
-//   "u1748447_karkoon",
-//   "u1748447_karkoon",
-//   "Ef]X+KY}U]Ch",
-//   {
-//     host: "localhost",
-//     dialect: "mysql",
-//     timezone: "+07:00",
-//   }
-// );
+// const db = new Sequelize("auth", "root", "", {
+//   host: "localhost",
+//   dialect: "mysql",
+//   timezone: "+07:00",
+// });
+
+const { Sequelize } = require("sequelize");
+
+const db = new Sequelize(
+  process.env.DB_NAME,
+  process.env.DB_USERNAME,
+  process.env.DB_PASSWORD,
+  {
+    host: process.env.DB_HOST,
+    dialect: "mysql",
+    timezone: "+07:00",
+  }
+);
+module.exports = db;
 
 // pass DB Cpanel niagahoster = Ef]X+KY}U]Ch
 
