@@ -12,6 +12,12 @@ dotenv.config();
 
 // SendOTP
 const sendOTP = async (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+  if (refreshToken)
+    return res.status(400).json({
+      error: true,
+      message: "Status masih login, silahkan logout terlebih dahulu",
+    });
   // Finds the validation errors in this request and wraps them in an object with handy functions
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -53,14 +59,16 @@ const sendOTP = async (req, res) => {
       .then(function (response) {
         console.log(JSON.stringify(response.data));
         res.status(200).json({
-          error: null,
-          code: code,
-          nohp: phoneNumber,
-          message: response.data,
+          error: false,
+          message: "Kode OTP berhasil dikirim",
         });
       })
       .catch(function (error) {
         console.log(error);
+        res.status(400).json({
+          error: true,
+          message: error,
+        });
       });
   } catch (error) {
     console.error("Auth error : " + error);
@@ -94,9 +102,8 @@ const Login = async (req, res) => {
         }
       );
       res.status(200).json({
-        error: null,
-        register: true,
-        register_token: registerToken,
+        error: false,
+        message: { register: true, register_token: registerToken },
       });
     } else {
       const userId = user.id;
@@ -127,9 +134,8 @@ const Login = async (req, res) => {
       await Otp.destroy({ where: { phone_number: user.phone_number } });
 
       res.json({
-        error: null,
-        register: null,
-        accessToken: getToken.accessToken,
+        error: false,
+        message: { register: null, accessToken: getToken.accessToken },
       });
     }
   } catch (error) {
@@ -141,7 +147,7 @@ const Login = async (req, res) => {
 const Register = async (req, res) => {
   try {
     const create = await Users.create({
-      phone_number: req.phoneNumber, // dari middleware register
+      phone_number: formatter.phoneNumberFormatter(req.body.phoneNumber), // dari middleware register
       username: req.body.username,
       full_name: req.body.username,
       birth_date: req.body.birth_date,
@@ -178,17 +184,16 @@ const Register = async (req, res) => {
         .json({ error: true, message: "Terjadi kesalahan" });
     }
 
-    await Otp.destroy({ where: { phone_number: req.phoneNumber } });
+    await Otp.destroy({ where: { phone_number: req.body.phoneNumber } });
 
-    res.status(200).json({
-      error: null,
-      message: "Register berhasil",
-      accessToken: getToken.accessToken,
+    res.status(201).json({
+      error: false,
+      message: { accessToken: getToken.accessToken },
     });
   } catch (error) {
     res.status(403).json({
       error: true,
-      message: error.errors[0].message,
+      message: error.errors,
     });
   }
 };
@@ -206,7 +211,7 @@ const checkUsername = async (req, res) => {
     } else {
       return res
         .status(200)
-        .json({ error: null, message: "Username bisa dipakai" });
+        .json({ error: false, message: "Username bisa dipakai" });
     }
   } catch (error) {
     return res.status(401).json({ error });
@@ -266,7 +271,7 @@ const LoginSocial = async (req, res) => {
       }
 
       res.status(200).json({
-        error: null,
+        error: false,
         message: "Register berhasil",
         accessToken: getToken.accessToken,
       });
@@ -339,7 +344,7 @@ const LoginSocial = async (req, res) => {
       }
 
       res.json({
-        error: null,
+        error: false,
         register: null,
         accessToken: getToken.accessToken,
       });
@@ -371,7 +376,7 @@ const Logout = async (req, res) => {
     }
   );
   res.clearCookie("refreshToken");
-  return res.status(200).json({ error: null, message: "Berhasil logout" });
+  return res.status(200).json({ error: false, message: "Berhasil logout" });
 };
 
 module.exports = {

@@ -33,15 +33,16 @@ const koneksi = async () => {
   try {
     await db.authenticate();
     console.log("Database connected!");
-    await Users.sync({ alter: true });
-    await Otp.sync({ alter: true });
-    await Follows.sync({ alter: true });
-    await Posts.sync({ alter: true });
-    await postLikes.sync({ alter: true });
-    await Comment.sync();
-    await replyComment.sync();
-    await commentLike.sync();
-    await replyCommentLike.sync();
+    await db.sync({ alter: true });
+    // await Users.sync({ alter: true });
+    // await Otp.sync({ alter: true });
+    // await Follows.sync({ alter: true });
+    // await Posts.sync({ alter: true });
+    // await postLikes.sync({ alter: true });
+    // await Comment.sync();
+    // await replyComment.sync();
+    // await commentLike.sync();
+    // await replyCommentLike.sync();
   } catch (error) {
     console.error("Database Error: " + error);
   }

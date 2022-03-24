@@ -25,7 +25,7 @@ const create = async (req, res) => {
       desc_post: content,
       image_post: image,
     });
-    res.status(200).json({ error: null, message: addPost });
+    res.status(200).json({ error: false, message: addPost });
   } catch (error) {
     res.status(400).json(error);
   }
@@ -45,16 +45,17 @@ const update = async (req, res) => {
       return res
         .status(404)
         .json({ error: true, message: "Post tidak ditemukan" });
-    if (post.user_id != req.body.userId)
-      return res
-        .status(403)
-        .json({ error: true, message: "UserId tidak cocok" });
+    if (post.userId != req.userId)
+      return res.status(403).json({
+        error: true,
+        message: "UserId tidak cocok, Tidak bisa mengubah post orang lain",
+      });
 
     const updatePost = await post.update({
       title_post: req.body.title,
       desc_post: req.body.desc,
     });
-    res.status(200).json({ error: null, message: updatePost });
+    res.status(200).json({ error: false, message: updatePost });
   } catch (error) {
     res.status(400).json({ error: true, message: error });
   }
@@ -75,7 +76,7 @@ const deletePost = async (req, res) => {
         .json({ error: true, message: "UserId tidak cocok" });
 
     await post.destroy();
-    res.status(200).json({ error: null, message: "Post berhasil dihapus" });
+    res.status(200).json({ error: false, message: "Post berhasil dihapus" });
   } catch (error) {
     res.status(400).json({ error: true, message: error });
   }
@@ -134,7 +135,7 @@ const getPost = async (req, res) => {
       return res
         .status(404)
         .json({ error: true, message: "Post tidak ditemukan" });
-    res.status(200).json({ error: null, message: post });
+    res.status(200).json({ error: false, message: post });
   } catch (error) {
     res.status(500).json({ error: true, message: error.message });
   }
@@ -185,7 +186,7 @@ const getAll = async (req, res) => {
       limit: req.body.limit ? req.body.limit : 10,
     });
 
-    res.status(200).json({ error: null, message: posts });
+    res.status(200).json({ error: false, message: posts });
   } catch (error) {
     res.status(500).json({ error: true, message: error.message });
   }
@@ -218,7 +219,7 @@ const likePost = async (req, res) => {
     });
     return res
       .status(201)
-      .json({ error: null, message: "Post berhasil dilike" });
+      .json({ error: false, message: "Post berhasil dilike" });
   } catch (error) {
     return res.status(500).json({ error: true, message: error.message });
   }
@@ -253,7 +254,7 @@ const unlikePost = async (req, res) => {
     });
     return res
       .status(201)
-      .json({ error: null, message: "Post berhasil diunlike" });
+      .json({ error: false, message: "Post berhasil diunlike" });
   } catch (error) {
     return res.status(500).json({ error: true, message: error.message });
   }
@@ -367,7 +368,7 @@ const timeline = async (req, res) => {
       // menyortir semua post berdasarkan UpdateAt menggunakan DESC
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
-    res.status(200).json({ error: null, message: sortPostsByDate });
+    res.status(200).json({ error: false, message: sortPostsByDate });
   } catch (error) {
     console.log("Error Timeline : " + error);
     return res.status(500).json({ error: true, message: error.message });
@@ -418,7 +419,7 @@ const getUserPosts = async (req, res) => {
         required: true,
       },
     });
-    res.status(200).json({ error: null, message: posts });
+    res.status(200).json({ error: false, message: posts });
   } catch (error) {
     console.log("Error get User Posts : " + error);
     res.status(500).json({ error: true, message: error.message });

@@ -14,7 +14,7 @@ const replyComment = async (req, res) => {
     });
     res
       .status(201)
-      .json({ error: null, message: "Berhasil membalas komentar" });
+      .json({ error: false, message: "Berhasil membalas komentar" });
   } catch (error) {
     console.log("Error Reply Comment : " + error);
     return res.status(500).json({ error: true, message: error.message });
@@ -49,7 +49,7 @@ const update = async (req, res) => {
     });
     return res
       .status(200)
-      .json({ error: null, message: "Komentar berhasil diupdate" });
+      .json({ error: false, message: "Komentar berhasil diupdate" });
   } catch (error) {
     console.log("Error update reply commnet : " + error);
     res.status(500).json({ error: true, message: error.message });
@@ -82,7 +82,7 @@ const deleteComment = async (req, res) => {
     await comment.destroy();
     return res
       .status(200)
-      .json({ error: null, message: "Komentar berhasil dihapus" });
+      .json({ error: false, message: "Komentar berhasil dihapus" });
   } catch (error) {
     console.log("Error delete comment : " + error);
     return res.status(500).json({ error: true, message: error.message });
@@ -109,7 +109,7 @@ const likeComment = async (req, res) => {
     });
     res
       .status(201)
-      .json({ error: null, message: "Berhasil menyukai komentar" });
+      .json({ error: false, message: "Berhasil menyukai komentar" });
   } catch (error) {
     console.log("Error add like comment : " + error);
     return res.status(500).json({ error: true, message: error.message });

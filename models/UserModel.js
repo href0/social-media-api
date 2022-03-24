@@ -132,4 +132,6 @@ replyCommentLike.belongsTo(Users);
 replyComment.hasMany(replyCommentLike);
 replyCommentLike.belongsTo(replyComment);
 
+// Users.belongsToMany(Users, { through: "Followers", as: "followers" }); => belongs to many
+
 module.exports = Users;

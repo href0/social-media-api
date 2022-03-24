@@ -9,7 +9,7 @@ const getUsers = async (req, res) => {
       attributes: ["id", "username", "phone_number"],
     });
     res.status(200).json({
-      error: null,
+      error: false,
       message: users,
     });
   } catch (error) {
@@ -26,7 +26,7 @@ const getUser = async (req, res) => {
         username: req.params.username,
       },
     });
-    res.status(200).json({ error: null, message: user });
+    res.status(200).json({ error: false, message: user });
   } catch (error) {
     console.error("getUserError: " + error);
   }
@@ -56,7 +56,7 @@ const updateUser = async (req, res) => {
         await checkUser.update({ profile_picture: image });
       }
 
-      res.status(200).json({ error: null, message: "User berhasil diupdate" });
+      res.status(200).json({ error: false, message: "User berhasil diupdate" });
     } catch (error) {
       res.status(403).json({ error: true, message: error.errors[0].message });
     }
@@ -86,7 +86,7 @@ const updateAvatar = async (req, res) => {
     await Users.update(req.body, {
       where: { username: req.params.username },
     });
-    res.status(200).json({ error: null, message: addPost });
+    res.status(200).json({ error: false, message: addPost });
   } catch (error) {
     res.status(400).json(error);
   }
@@ -133,8 +133,10 @@ const followUser = async (req, res) => {
         sender_id: currentUser.id,
         receiver_id: receiverUser.id,
       });
+      // userToFollow = receiverUser;
+      // await receiverUser.addFollowers(currentUser); => belongs to many
       res.status(200).json({
-        error: null,
+        error: false,
         message: "User berhasil difollow",
       });
     } else {
@@ -193,7 +195,7 @@ const unfollowUser = async (req, res) => {
         },
       });
       res.status(200).json({
-        error: null,
+        error: false,
         message: "User berhasil diunfollow",
       });
     } else {
@@ -224,7 +226,7 @@ const getFollowers = async (req, res) => {
       ],
     });
 
-    return res.status(200).json({ error: null, message: follow });
+    return res.status(200).json({ error: false, message: follow });
   } catch (error) {
     res.status(500).json({ error: true, message: error });
   }
@@ -248,7 +250,7 @@ const getFollowing = async (req, res) => {
         },
       ],
     });
-    return res.status(200).json({ error: null, message: follow });
+    return res.status(200).json({ error: false, message: follow });
   } catch (error) {
     res.status(500).json({ error: true, message: error });
   }
@@ -269,7 +271,7 @@ const searchUser = async (req, res) => {
         username: { [Op.like]: `%${req.query.username}%` },
       },
     });
-    return res.status(200).json({ error: null, message: user });
+    return res.status(200).json({ error: false, message: user });
   } catch (error) {
     return res.status(500).json({ error: true, message: error.message });
   }

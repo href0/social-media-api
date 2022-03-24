@@ -5,13 +5,13 @@ const RegisterMiddleware = async (req, res, next) => {
   const authHeader = req.headers["authorization"]; // mengambil header
   const token = authHeader && authHeader.split(" ")[1]; // mengambil token, jika tidak ada header makan null
   if (token == null)
-    return res.status(400).json({ error: true, message: "Token tidak valid" }); // jika token null status Unauthorized
+    return res.status(401).json({ error: true, message: "Token tidak valid" }); // jika token null status Unauthorized
   const otp = await Otp.findOne({
     // cek apakah token_register ditable OTP sama dengan token yang dikirim dari header
     where: { register_token: token },
   });
   if (!otp)
-    return res.status(400).json({ error: true, message: "Token tidak valid" }); // jika tidak sama, error
+    return res.status(401).json({ error: true, message: "Token tidak valid" }); // jika tidak sama, error
 
   // jika token sama, maka verify tokennya
   jwt.verify(token, process.env.REGISTER_TOKEN_SECRET, (err, decoded) => {

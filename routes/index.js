@@ -39,7 +39,7 @@ router.post("/auth/login", verifyOtpMiddleware.verifyOtp, authController.Login);
 // REGISTER
 router.post(
   "/auth/register",
-  verifyRegisterMiddleware.RegisterMiddleware,
+  // verifyRegisterMiddleware.RegisterMiddleware,
   authController.Register
 );
 
@@ -121,6 +121,7 @@ router.post(
 router.put(
   "/post/:id?",
   check("title").notEmpty().withMessage("Title tidak boleh kosong"),
+  verifyTokenMiddleware.verifyToken,
   postController.update
 );
 
