@@ -1,4 +1,5 @@
 const express = require("express");
+const morgan = require("morgan");
 //CONFIG
 const db = require("./config/db.js");
 // const uploadImage = require("./config/UploadImage.js");
@@ -25,6 +26,7 @@ const http = require("http");
 const { json } = require("body-parser");
 
 const app = express();
+
 const server = http.createServer(app);
 const port = process.env.PORT || 8800;
 dotenv.config();
@@ -48,6 +50,7 @@ const koneksi = async () => {
   }
 };
 koneksi();
+app.use(morgan("combined"));
 app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
 app.use("/assets/", express.static("assets"));
 app.use(cookieParser());

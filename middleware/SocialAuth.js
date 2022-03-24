@@ -1,7 +1,7 @@
 const axios = require("axios");
 
 const verifyToken = async (req, res, next) => {
-  const authHeader = req.headers["authorization"]; // mengambil header
+  const authHeader = req.header("authorization"); // mengambil header
   const token = authHeader && authHeader.split(" ")[1]; // mengambil token, jika tidak ada header makan null
   if (token == null)
     return res.status(401).json({ error: true, message: "Token tidak valid" }); // jika token null status Unauthorized
