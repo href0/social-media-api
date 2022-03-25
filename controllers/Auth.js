@@ -135,7 +135,7 @@ const Login = async (req, res) => {
 
       res.json({
         error: false,
-        message: { register: null, accessToken: getToken.accessToken },
+        message: { register: false, accessToken: getToken.accessToken },
       });
     }
   } catch (error) {
@@ -345,7 +345,7 @@ const LoginSocial = async (req, res) => {
 
       res.json({
         error: false,
-        register: null,
+        register: false,
         accessToken: getToken.accessToken,
       });
     }
