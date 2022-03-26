@@ -82,6 +82,9 @@ const Login = async (req, res) => {
     const nohp = req.phone_number;
     const code = req.code;
     const user = await Users.findOne({
+      attributes: {
+        exclude: ["refresh_token"],
+      },
       where: {
         phone_number: nohp,
       },
