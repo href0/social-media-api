@@ -135,7 +135,12 @@ const Login = async (req, res) => {
 
       res.json({
         error: false,
-        message: { register: false, accessToken: getToken.accessToken },
+        message: {
+          register: false,
+          user: user,
+          refreshToken: getToken.refreshToken,
+          accessToken: getToken.accessToken,
+        },
       });
     }
   } catch (error) {
@@ -151,6 +156,18 @@ const Register = async (req, res) => {
       username: req.body.username,
       full_name: req.body.username,
       birth_date: req.body.birth_date,
+      bio: "",
+      uid: "",
+      id_card: "",
+      gender: "",
+      name_card: "",
+      type_card: "",
+      picture_card: "",
+      brand_name: "",
+      brand_domain: "",
+      brand_image: "",
+      profile_picture: "",
+      is_active_brand: "0",
       email: req.body.email,
       provider: "phone",
       level_id: "4", // 1. Superadmin 2.Admin 3.Brand 4.userBiasa
@@ -188,7 +205,11 @@ const Register = async (req, res) => {
 
     res.status(201).json({
       error: false,
-      message: { accessToken: getToken.accessToken },
+      message: {
+        user: create,
+        refreshToken: getToken.refreshToken,
+        accessToken: getToken.accessToken,
+      },
     });
   } catch (error) {
     res.status(403).json({
