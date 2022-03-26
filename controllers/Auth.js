@@ -6,6 +6,7 @@ const { validationResult } = require("express-validator");
 const formatter = require("../helper/formatter.js");
 const generateToken = require("../helper/GenerateToken.js");
 const dotenv = require("dotenv");
+const Follows = require("../models/FollowModel.js");
 dotenv.config();
 
 /*LOGIN REGISTER WITH PHONE NUMBER AND OTP*/

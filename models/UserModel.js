@@ -96,6 +96,8 @@ Users.hasMany(Follows, {
   foreignKey: { name: "receiver_id", allowNull: false },
 }); // difollow
 Follows.belongsTo(Users, { as: "sender", foreignKey: "sender_id" });
+Follows.belongsTo(Users, { as: "follower", foreignKey: "sender_id" });
+Follows.belongsTo(Users, { as: "following", foreignKey: "sender_id" });
 Follows.belongsTo(Users, { as: "receiver", foreignKey: "receiver_id" });
 
 Post.hasMany(postLikes);

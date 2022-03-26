@@ -217,11 +217,15 @@ const getFollowers = async (req, res) => {
       include: [
         {
           model: Users,
-          as: "sender",
-        },
-        {
-          model: Users,
-          as: "receiver",
+          as: "follower",
+          attributes: [
+            "phone_number",
+            "email",
+            "username",
+            "full_name",
+            "bio",
+            "gender",
+          ],
         },
       ],
     });
@@ -242,11 +246,15 @@ const getFollowing = async (req, res) => {
       include: [
         {
           model: Users,
-          as: "sender",
-        },
-        {
-          model: Users,
-          as: "receiver",
+          as: "following",
+          attributes: [
+            "phone_number",
+            "email",
+            "username",
+            "full_name",
+            "bio",
+            "gender",
+          ],
         },
       ],
     });
