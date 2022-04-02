@@ -161,7 +161,7 @@ const Register = async (req, res) => {
       full_name: req.body.username,
       birth_date: req.body.birth_date,
       bio: "",
-      uid: "",
+      uid: req.body.uid,
       id_card: "",
       gender: "",
       name_card: "",
