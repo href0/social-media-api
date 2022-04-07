@@ -60,6 +60,9 @@ const Users = db.define(
     type_card: {
       type: DataTypes.STRING,
     },
+    skin_type: {
+      type: DataTypes.STRING,
+    },
     picture_card: {
       type: DataTypes.STRING,
     },
