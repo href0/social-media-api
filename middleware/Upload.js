@@ -82,7 +82,7 @@ const uploadAvatar = async (req, res, next) => {
     let upl = await multer({
       storage: fileStorage,
       fileFilter: fileFilter,
-    }).single("image");
+    }).single("profile_picture");
 
     upl(req, res, function (err) {
       if (err instanceof multer.MulterError) {
