@@ -22,7 +22,7 @@ const uploadPost = async (req, res, next) => {
         cb(null, true);
       } else {
         cb(null, false);
-        return cb(new Error("Onlu png jpg jpeg"));
+        return cb(new Error("Only png jpg jpeg"));
         // return res.status(400).json({ error: "error" });
       }
     };
@@ -35,13 +35,13 @@ const uploadPost = async (req, res, next) => {
     upl(req, res, function (err) {
       if (err instanceof multer.MulterError) {
         return res.status(406).json({
-          status: "Error",
-          message: err,
+          error: true,
+          message: err.message,
         });
       } else if (err) {
         return res.status(406).json({
-          status: "Error",
-          message: err,
+          error: true,
+          message: err.message,
         });
       }
       req.title = req.body.title;
