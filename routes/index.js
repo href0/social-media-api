@@ -70,7 +70,7 @@ router.get(
   userController.getUser
 );
 router.put(
-  "/user/:username",
+  "/user/:id",
   verifyTokenMiddleware.verifyToken,
   uploadMiddleware.uploadAvatar,
   userController.updateUser
