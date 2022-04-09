@@ -76,6 +76,9 @@ router.put(
   userController.updateUser
 );
 
+//CHECK USEr
+router.get("/user/check/:username", userController.checkUser);
+
 // FOLLOW UNFOLLOW
 router.post(
   "/user/follow/:id",

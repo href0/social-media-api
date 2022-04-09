@@ -291,6 +291,27 @@ const searchUser = async (req, res) => {
   }
 };
 
+// CHECK USER
+const checkUser = async (req, res) => {
+  try {
+    // console.log(req.params.id);
+    const check = await Users.findOne({
+      where: {
+        username: req.params.username,
+      },
+    });
+    // console.log(user);
+    if (check) {
+      return res
+        .status(400)
+        .json({ error: true, message: "Username sudah terdaftar" });
+    }
+    res.status(200).json({ error: false, message: "Username bisa dipakai" });
+  } catch (error) {
+    return res.status(400).json({ error: true, message: error });
+  }
+};
+
 // USER POST LIKE
 // ADD EMAIL WITH OTP
 
@@ -304,4 +325,5 @@ module.exports = {
   getFollowing,
   searchUser,
   updateAvatar,
+  checkUser,
 };
