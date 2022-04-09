@@ -36,7 +36,7 @@ const getUser = async (req, res) => {
 const updateUser = async (req, res) => {
   // cek user yang ingin melakukan update sesuai dengan usernamenya atau yang ingin melakukan update adalah admmin
   if (
-    req.userId === req.params.id || // jika user yang login
+    req.userId == req.params.id || // jika user yang login
     req.levelId == 1 || //jika superadmin
     req.levelId == 2 // jika admin
   ) {
