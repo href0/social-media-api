@@ -23,12 +23,18 @@ const getUser = async (req, res) => {
   try {
     const user = await Users.findOne({
       where: {
-        username: req.params.username,
+        id: req.params.id,
       },
     });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ error: true, message: "User tidak ditemukan" });
+    }
     res.status(200).json({ error: false, message: user });
   } catch (error) {
     console.error("getUserError: " + error);
+    res.status(400).json({ error: true, message: error });
   }
 };
 
@@ -94,18 +100,18 @@ const updateAvatar = async (req, res) => {
 
 // FOLLOW A USER
 const followUser = async (req, res) => {
-  const senderUsername = req.username;
-  const receiverUsername = req.params.username;
+  const senderId = req.userId;
+  const receiverId = req.params.id;
   try {
-    if (senderUsername != receiverUsername) {
+    if (senderId != receiverId) {
       const receiverUser = await Users.findOne({
         where: {
-          username: receiverUsername,
+          id: receiverId,
         },
       });
       const currentUser = await Users.findOne({
         where: {
-          username: senderUsername,
+          id: senderId,
         },
       });
 
@@ -152,18 +158,18 @@ const followUser = async (req, res) => {
 
 // UNFOLLOW A USER
 const unfollowUser = async (req, res) => {
-  const senderUsername = req.username;
-  const receiverUsername = req.params.username;
+  const senderId = req.userId;
+  const receiverId = req.params.id;
   try {
-    if (senderUsername != receiverUsername) {
+    if (senderId != receiverId) {
       const receiverUser = await Users.findOne({
         where: {
-          username: receiverUsername,
+          id: receiverId,
         },
       });
       const currentUser = await Users.findOne({
         where: {
-          username: senderUsername,
+          id: senderId,
         },
       });
 

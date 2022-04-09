@@ -65,7 +65,7 @@ router.get(
   userController.getUsers
 );
 router.get(
-  "/user/:username",
+  "/user/:id",
   verifyTokenMiddleware.verifyToken,
   userController.getUser
 );
@@ -78,12 +78,12 @@ router.put(
 
 // FOLLOW UNFOLLOW
 router.post(
-  "/user/follow/:username",
+  "/user/follow/:id",
   verifyTokenMiddleware.verifyToken,
   userController.followUser
 );
 router.delete(
-  "/user/follow/:username",
+  "/user/follow/:id",
   verifyTokenMiddleware.verifyToken,
   userController.unfollowUser
 );
