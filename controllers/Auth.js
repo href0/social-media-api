@@ -13,12 +13,12 @@ dotenv.config();
 
 // SendOTP
 const sendOTP = async (req, res) => {
-  const refreshToken = req.cookies.refreshToken;
-  if (refreshToken)
-    return res.status(400).json({
-      error: true,
-      message: "Status masih login, silahkan logout terlebih dahulu",
-    });
+  // const refreshToken = req.cookies.refreshToken;
+  // if (refreshToken)
+  //   return res.status(400).json({
+  //     error: true,
+  //     message: "Status masih login, silahkan logout terlebih dahulu",
+  //   });
   // Finds the validation errors in this request and wraps them in an object with handy functions
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
