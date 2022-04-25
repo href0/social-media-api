@@ -312,6 +312,35 @@ const checkUser = async (req, res) => {
   }
 };
 
+// DELETE USER
+const destroy = async (req, res) => {
+  try {
+    if (req.body.key == "asdjklsa908a9djl98")
+      return res
+        .status(406)
+        .json({ error: true, message: "Tidak dapat akses ini" });
+    const check = await Users.findOne({
+      where: {
+        id: req.body.id,
+      },
+    });
+    if (!check)
+      return res
+        .status(404)
+        .json({ error: true, message: "User tidak ditemukan" });
+
+    await check.destroy();
+    return res
+      .status(200)
+      .json({ error: false, message: "User berhasil dihapus" });
+  } catch (error) {
+    res.status(500).json({
+      error: true,
+      message: "Error delete user",
+    });
+  }
+};
+
 // USER POST LIKE
 // ADD EMAIL WITH OTP
 
@@ -326,4 +355,5 @@ module.exports = {
   searchUser,
   updateAvatar,
   checkUser,
+  destroy,
 };
