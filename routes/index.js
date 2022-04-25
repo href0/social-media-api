@@ -107,6 +107,8 @@ router.get(
 // SEARCH USER
 router.get("/search", userController.searchUser);
 
+// DELETE USER
+
 // Token
 router.get("/token", refreshTokenController.refreshToken);
 
