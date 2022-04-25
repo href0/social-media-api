@@ -315,7 +315,7 @@ const checkUser = async (req, res) => {
 // DELETE USER
 const destroy = async (req, res) => {
   try {
-    if (!req.body.key == "asdjklsa908a9djl98")
+    if (req.body.key != "asdjklsa908a9djl98")
       return res
         .status(406)
         .json({ error: true, message: "Tidak dapat akses ini" });
