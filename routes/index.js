@@ -72,8 +72,15 @@ router.get(
 router.put(
   "/user/:id",
   verifyTokenMiddleware.verifyToken,
-  uploadMiddleware.uploadAvatar,
+  // uploadMiddleware.uploadAvatar,
   userController.updateUser
+);
+
+router.put(
+  "/useravatar/:id",
+  verifyTokenMiddleware.verifyToken,
+  uploadMiddleware.uploadAvatar,
+  userController.updateAvatar
 );
 
 //CHECK USEr

@@ -55,12 +55,8 @@ const updateUser = async (req, res) => {
           .status(404)
           .json({ error: true, message: "User tidak ditemukan" });
 
-      if (!req.file) {
-        await checkUser.update(req.body);
-      } else {
-        const image = req.file.path;
-        await checkUser.update({ profile_picture: image });
-      }
+      // console.log(req.body);
+      await checkUser.update(req.body);
 
       res.status(200).json({ error: false, message: "User berhasil diupdate" });
     } catch (error) {
@@ -83,16 +79,15 @@ const updateAvatar = async (req, res) => {
   const image = req.file.path;
   try {
     const checkUser = await Users.findOne({
-      where: { username: req.params.username },
+      where: { id: req.params.id },
     });
     if (!checkUser)
       return res
         .status(404)
         .json({ error: true, message: "User tidak ditemukan" });
-    await Users.update(req.body, {
-      where: { username: req.params.username },
-    });
-    res.status(200).json({ error: false, message: addPost });
+
+    await checkUser.update({ profile_picture: image });
+    res.status(200).json({ error: false, message: "Avatar berhasil diupdate" });
   } catch (error) {
     res.status(400).json(error);
   }
