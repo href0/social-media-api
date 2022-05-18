@@ -123,7 +123,7 @@ const updateUser = async (req, res) => {
           // check EMAIL
           const checkEmail = await Users.findOne({
             where: {
-              email: email,
+              email: req.body.email,
             },
           });
           if (checkEmail)
