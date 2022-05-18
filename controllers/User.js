@@ -61,9 +61,12 @@ const updateUser = async (req, res) => {
 
       // console.log(req.body);
       if (req.body.phone_number) {
+        const phoneNumber = formatter.phoneNumberFormatter(
+          req.body.phone_number
+        );
         const checkNohp = await Users.findOne({
           where: {
-            phone_number: req.body.phone_number,
+            phone_number: phoneNumber,
           },
         });
         if (checkNohp)
@@ -72,9 +75,7 @@ const updateUser = async (req, res) => {
             .json({ error: true, message: "No handphone sudah terdaftar" });
         const code = Math.floor(100000 + Math.random() * 900000);
         const expired = Date.now() + 2 * 60 * 1000; // 2menit
-        const phoneNumber = formatter.phoneNumberFormatter(
-          req.body.phone_number
-        );
+
         await Otp.create({
           phone_number: phoneNumber,
           code: code,
