@@ -5,6 +5,8 @@ const formatter = require("../helper/formatter.js");
 const Otp = require("../models/OtpModel.js");
 const axios = require("axios");
 const dotenv = require("dotenv");
+const nodemailer = require("nodemailer");
+const emailValidator = require("email-validator");
 
 // GET ALL USERS
 const getUsers = async (req, res) => {
@@ -116,6 +118,50 @@ const updateUser = async (req, res) => {
               message: error,
             });
           });
+      } else if (req.body.email) {
+        if (emailValidator.validate(req.body.email)) {
+          const code = Math.floor(100000 + Math.random() * 900000);
+          const expired = Date.now() + 2 * 60 * 1000; // 2menit
+          await Otp.create({
+            phone_number: req.body.email,
+            code: code,
+            expired: expired,
+          });
+
+          let transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+              user: "karkoon.verif@gmail.com", // generated ethereal user
+              pass: "InsyaAllah2022", // generated ethereal password
+            },
+          });
+          let mailOptions = {
+            from: "karkoon.verif@gmail.com", // sender address
+            to: req.body.email, // list of receivers
+            subject: "Verifikasi OTP", // Subject line
+            text: `JANGAN MEMBERITAHUKAN KODE INI KEPADA SIAPAPUN. KODE ANDA : ${String(
+              code
+            )}`,
+          };
+          transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+              console.log("terjadi kesalahan :" + error);
+              return res.status(500).json({
+                error: true,
+                message: "Terjadi kesalahan pada server",
+              });
+            } else {
+              console.log("berhasil" + info.response);
+
+              return res.status(200).json({
+                error: false,
+                message: "OTP Berhasil dikirim ke email",
+              });
+            }
+          });
+        } else {
+          res.status(403).json({ error: true, message: "Format email salah" });
+        }
       } else {
         await checkUser.update(req.body);
 
@@ -131,6 +177,30 @@ const updateUser = async (req, res) => {
     res
       .status(403)
       .json({ error: true, message: "Kamu tidak dapat akses ini" });
+  }
+};
+
+// update EMAIL
+const updateEmail = async (req, res) => {
+  try {
+    const email = req.phone_number; // ubah nanti saja KEKW
+    const checkUser = await Users.findOne({
+      where: {
+        email: email,
+      },
+    });
+    if (checkUser)
+      return res
+        .status(400)
+        .json({ error: true, message: "Email sudah terdaftar" });
+
+    await Users.update({ email: email }, { where: { id: req.params.id } });
+    res.status(200).json({ error: false, message: "Email berhasil diupdate" });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ error: true, message: "Terjadi kesalahan pada server" });
   }
 };
 
@@ -437,6 +507,7 @@ module.exports = {
   getUsers,
   getUser,
   updateUser,
+  updateEmail,
   followUser,
   unfollowUser,
   getFollowers,

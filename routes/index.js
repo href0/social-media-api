@@ -86,6 +86,14 @@ router.put(
   userController.updatePhone
 );
 
+// edit phone
+router.put(
+  "/useremail/:id",
+  verifyTokenMiddleware.verifyToken,
+  verifyOtpMiddleware.verifyOtp,
+  userController.updateEmail
+);
+
 // edit avatar
 router.put(
   "/useravatar/:id",

@@ -5,7 +5,12 @@ const formatter = require("../helper/formatter.js");
 // VerifyOTP
 const verifyOtp = async (req, res, next) => {
   try {
-    const noHpFormatted = formatter.phoneNumberFormatter(req.body.phone_number);
+    let noHpFormatted;
+    if (req.body.phone_number) {
+      noHpFormatted = formatter.phoneNumberFormatter(req.body.phone_number);
+    } else if (req.body.email) {
+      noHpFormatted = req.body.email;
+    }
     // const nohp = req.body.phone_number;
     const code = req.body.code;
     const otp = await Otp.findOne({
