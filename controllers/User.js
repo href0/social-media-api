@@ -120,6 +120,17 @@ const updateUser = async (req, res) => {
           });
       } else if (req.body.email) {
         if (emailValidator.validate(req.body.email)) {
+          // check EMAIL
+          const checkEmail = await Users.findOne({
+            where: {
+              email: email,
+            },
+          });
+          if (checkEmail)
+            return res
+              .status(400)
+              .json({ error: true, message: "Email sudah terdaftar" });
+
           const code = Math.floor(100000 + Math.random() * 900000);
           const expired = Date.now() + 2 * 60 * 1000; // 2menit
           await Otp.create({
