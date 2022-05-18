@@ -1,6 +1,10 @@
 const Users = require("../models/UserModel.js");
 const Follows = require("../models/FollowModel.js");
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
+const formatter = require("../helper/formatter.js");
+const Otp = require("../models/OtpModel.js");
+const axios = require("axios");
+const dotenv = require("dotenv");
 
 // GET ALL USERS
 const getUsers = async (req, res) => {
@@ -56,16 +60,96 @@ const updateUser = async (req, res) => {
           .json({ error: true, message: "User tidak ditemukan" });
 
       // console.log(req.body);
-      await checkUser.update(req.body);
+      if (req.body.phone_number) {
+        const code = Math.floor(100000 + Math.random() * 900000);
+        const expired = Date.now() + 2 * 60 * 1000; // 2menit
+        const phoneNumber = formatter.phoneNumberFormatter(
+          req.body.phone_number
+        );
+        await Otp.create({
+          phone_number: phoneNumber,
+          code: code,
+          expired: expired,
+        });
 
-      res.status(200).json({ error: false, message: "User berhasil diupdate" });
+        let config = {
+          method: "post",
+          url: "https://sendtalk-api.taptalk.io/api/v1/message/send_whatsapp",
+          headers: {
+            "api-key": process.env.SENDTALK_API_KEY,
+            "Content-Type": "application/json",
+          },
+          data: {
+            phone: phoneNumber,
+            messageType: "otp",
+            body: `*${
+              process.env.COMPANY
+            }* - JANGAN MEMBERITAHUKAN KODE INI KEPADA SIAPAPUN. KODE ANDA : ${String(
+              code
+            )}`,
+          },
+        };
+
+        // SEND OTP CODE TO WHATSAPP USER
+        await axios(config)
+          .then(function (response) {
+            console.log(JSON.stringify(response.data));
+            res.status(200).json({
+              error: false,
+              message: "Kode OTP berhasil dikirim",
+            });
+          })
+          .catch(function (error) {
+            console.log(error);
+            res.status(400).json({
+              error: true,
+              message: error,
+            });
+          });
+      } else {
+        await checkUser.update(req.body);
+
+        res
+          .status(200)
+          .json({ error: false, message: "User berhasil diupdate" });
+      }
     } catch (error) {
+      console.log(error);
       res.status(403).json({ error: true, message: error.errors[0].message });
     }
   } else {
     res
       .status(403)
       .json({ error: true, message: "Kamu tidak dapat akses ini" });
+  }
+};
+
+// update PhoneNumber
+const updatePhone = async (req, res) => {
+  try {
+    const nohp = req.phone_number;
+    const checkUser = await Users.findOne({
+      where: {
+        phone_number: nohp,
+      },
+    });
+    if (checkUser)
+      return res
+        .status(400)
+        .json({ error: true, message: "No handphone sudah terdaftar" });
+
+    await Users.update(
+      { phone_number: nohp },
+      { where: { id: req.params.id } }
+    );
+    res
+      .status(200)
+      .json({ error: false, message: "No handphone berhasil diupdate" });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ error: true, message: "Terjadi kesalahan pada server" });
   }
 };
 
@@ -348,6 +432,7 @@ module.exports = {
   getFollowers,
   getFollowing,
   searchUser,
+  updatePhone,
   updateAvatar,
   checkUser,
   destroy,

@@ -69,6 +69,8 @@ router.get(
   verifyTokenMiddleware.verifyToken,
   userController.getUser
 );
+
+// edit
 router.put(
   "/user/:id",
   verifyTokenMiddleware.verifyToken,
@@ -76,6 +78,15 @@ router.put(
   userController.updateUser
 );
 
+// edit phone
+router.put(
+  "/userphone/:id",
+  verifyTokenMiddleware.verifyToken,
+  verifyOtpMiddleware.verifyOtp,
+  userController.updatePhone
+);
+
+// edit avatar
 router.put(
   "/useravatar/:id",
   verifyTokenMiddleware.verifyToken,
