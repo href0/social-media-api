@@ -200,7 +200,7 @@ router.delete(
 
 // TIMELINE
 router.get(
-  "/timeline",
+  "/timeline/:offset?/:limit?",
   verifyTokenMiddleware.verifyToken,
   postController.timeline
 );
