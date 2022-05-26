@@ -179,7 +179,11 @@ router.get(
 );
 
 // GET ALL POST
-router.get("/posts/", verifyTokenMiddleware.verifyToken, postController.getAll);
+router.get(
+  "/posts/:offset?/:limit?",
+  verifyTokenMiddleware.verifyToken,
+  postController.getAll
+);
 
 // LIKE A POST
 router.post(

@@ -182,8 +182,8 @@ const getAll = async (req, res) => {
           ],
         },
       ],
-      offset: req.body.offset ? req.body.offset : 0,
-      limit: req.body.limit ? req.body.limit : 10,
+      offset: Number(req.params.offset) ? Number(req.params.offset) : 0,
+      limit: Number(req.params.limit) ? Number(req.params.limit) : 10,
     });
 
     res.status(200).json({ error: false, message: posts });
