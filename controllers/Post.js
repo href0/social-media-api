@@ -263,9 +263,21 @@ const unlikePost = async (req, res) => {
 // GET TIMELINE POST
 const timeline = async (req, res) => {
   try {
+    const following = await Follows.findAll({
+      where: {
+        sender_id: req.userId,
+      },
+    });
+    let arr = [req.userId];
+    const followingId = await Promise.all(
+      following.map((element) => {
+        arr.push(element.receiver_id);
+      })
+    );
+
     const userPosts = await Post.findAll({
       where: {
-        userId: req.userId,
+        userId: { [Op.in]: arr },
       },
       include: [
         {
@@ -308,63 +320,57 @@ const timeline = async (req, res) => {
       order: [["updatedAt", "DESC"]],
     });
 
-    const following = await Follows.findAll({
-      where: {
-        sender_id: req.userId,
-      },
-    });
+    // const followingPosts = await Promise.all(
+    //   following.map((element) => {
+    //     return Post.findAll({
+    //       where: {
+    //         userId: element.receiver_id,
+    //       },
+    //       include: [
+    //         {
+    //           attributes: ["username", "full_name", "profile_picture"],
+    //           model: Users,
+    //           required: true,
+    //         },
+    //         {
+    //           attributes: ["userId"],
+    //           model: postLikes,
+    //         },
+    //         {
+    //           model: Comment,
+    //           required: false,
+    //           include: [
+    //             {
+    //               attributes: ["username", "full_name", "profile_picture"],
+    //               model: Users,
+    //             },
+    //             {
+    //               model: replyComment,
+    //               as: "reply",
+    //               include: [
+    //                 {
+    //                   attributes: ["username", "full_name", "profile_picture"],
+    //                   model: Users,
+    //                 },
+    //                 {
+    //                   attributes: ["username"],
+    //                   as: "parent",
+    //                   model: Users,
+    //                 },
+    //               ],
+    //             },
+    //           ],
+    //         },
+    //       ],
+    //       offset: Number(req.params.offset) ? Number(req.params.offset) : 0,
+    //       limit: Number(req.params.limit) ? Number(req.params.limit) : 5,
+    //       order: [["updatedAt", "DESC"]],
+    //     });
+    //   })
+    // );
 
-    const followingPosts = await Promise.all(
-      following.map((element) => {
-        return Post.findAll({
-          where: {
-            userId: element.receiver_id,
-          },
-          include: [
-            {
-              attributes: ["username", "full_name", "profile_picture"],
-              model: Users,
-              required: true,
-            },
-            {
-              attributes: ["userId"],
-              model: postLikes,
-            },
-            {
-              model: Comment,
-              required: false,
-              include: [
-                {
-                  attributes: ["username", "full_name", "profile_picture"],
-                  model: Users,
-                },
-                {
-                  model: replyComment,
-                  as: "reply",
-                  include: [
-                    {
-                      attributes: ["username", "full_name", "profile_picture"],
-                      model: Users,
-                    },
-                    {
-                      attributes: ["username"],
-                      as: "parent",
-                      model: Users,
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-          offset: Number(req.params.offset) ? Number(req.params.offset) : 0,
-          limit: Number(req.params.limit) ? Number(req.params.limit) : 5,
-          order: [["updatedAt", "DESC"]],
-        });
-      })
-    );
-
-    const allPosts = userPosts.concat(...followingPosts); // menggabungkan userpost dengan followingpost
-    const sortPostsByDate = await allPosts.sort((a, b) => {
+    //const allPosts = userPosts.concat(...followingPosts); // menggabungkan userpost dengan followingpost
+    const sortPostsByDate = await userPosts.sort((a, b) => {
       // menyortir semua post berdasarkan UpdateAt menggunakan DESC
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
