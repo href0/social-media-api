@@ -356,8 +356,8 @@ const timeline = async (req, res) => {
               ],
             },
           ],
-          offset: req.body.offset ? req.body.offset : 0,
-          limit: req.body.limit ? req.body.limit : 5,
+          offset: Number(req.params.offset) ? Number(req.params.offset) : 0,
+          limit: Number(req.params.limit) ? Number(req.params.limit) : 5,
           order: [["updatedAt", "DESC"]],
         });
       })
