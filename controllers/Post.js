@@ -12,8 +12,10 @@ const replyComment = require("../models/replyComment");
 const create = async (req, res) => {
   if (!req.file)
     return res
-      .status(404)
+      .status(400)
       .json({ error: true, message: "Gambar harus diupload" });
+  if (!req.body.title)
+    return res.status(400).json({ error: true, message: "Title harus diisi" });
 
   const title = req.body.title;
   const content = req.body.desc;
