@@ -2,10 +2,6 @@ const multer = require("multer");
 
 const uploadPost = async (req, res, next) => {
   try {
-    if (!req.body.title)
-      return res
-        .status(400)
-        .json({ error: true, message: "Title harus diisi" });
     const fileStorage = multer.diskStorage({
       destination: (req, file, cb) => {
         cb(null, "./assets/images/posts/");
