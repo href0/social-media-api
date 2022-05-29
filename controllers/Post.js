@@ -14,8 +14,8 @@ const create = async (req, res) => {
     return res
       .status(400)
       .json({ error: true, message: "Gambar harus diupload" });
-  if (!req.body.title)
-    return res.status(400).json({ error: true, message: "Title harus diisi" });
+  // if (!req.body.title)
+  //   return res.status(400).json({ error: true, message: "Title harus diisi" });
 
   const title = req.body.title;
   const content = req.body.desc;
