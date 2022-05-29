@@ -193,7 +193,7 @@ router.post(
 );
 // UNLIKE A POST
 router.delete(
-  "/unlike_post",
+  "/like_post",
   verifyTokenMiddleware.verifyToken,
   postController.unlikePost
 );
