@@ -242,7 +242,7 @@ router.post(
 
 // UNLIKE COMMENT
 router.delete(
-  "/unlike_comment",
+  "/like_comment",
   verifyTokenMiddleware.verifyToken,
   commentController.deleteLike
 );
@@ -281,7 +281,7 @@ router.post(
 
 // UNLIKE COMMENT
 router.delete(
-  "/unlike_replycomment",
+  "/like_replycomment",
   verifyTokenMiddleware.verifyToken,
   replyComment.deleteLike
 );

@@ -92,6 +92,17 @@ const deleteComment = async (req, res) => {
 // like
 const likeComment = async (req, res) => {
   try {
+    const comment = await Reply.findOne({
+      where: {
+        id: req.body.replyCommentId,
+      },
+    });
+
+    if (!comment)
+      return res
+        .status(404)
+        .json({ error: true, message: "Komentar tidak ditemukan" });
+
     const like = await replyCommentLike.findOne({
       where: {
         replyCommentId: req.body.replyCommentId,
@@ -119,6 +130,16 @@ const likeComment = async (req, res) => {
 // unlike
 const deleteLike = async (req, res) => {
   try {
+    const comment = await Reply.findOne({
+      where: {
+        id: req.body.replyCommentId,
+      },
+    });
+
+    if (!comment)
+      return res
+        .status(404)
+        .json({ error: true, message: "Komentar tidak ditemukan" });
     const like = await replyCommentLike.findOne({
       where: {
         userId: req.userId,
