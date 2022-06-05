@@ -1,6 +1,7 @@
 const Comment = require("../models/CommentModel");
 const Post = require("../models/PostModel");
 const commentLike = require("../models/CommentLike");
+const replyCommentLike = require("../models/ReplyCommentLike");
 
 // ADD
 const addComment = async (req, res) => {
@@ -175,6 +176,28 @@ const deleteLike = async (req, res) => {
   }
 };
 
-// GET COMMENT
+// GET COMMENT LIKE
+const getCommentLike = async (req, res) => {
+  try {
+    const comments = await commentLike.findAll({
+      where: {
+        commentId: req.params.commentId,
+      },
+    });
+    res.status(200).json({ error: false, message: comments });
+  } catch (error) {
+    console.log("Error unlike comment : " + error);
+    return res
+      .status(500)
+      .json({ error: true, error: "Terjadi kesalahan pada server" });
+  }
+};
 
-module.exports = { addComment, update, deleteComment, likeComment, deleteLike };
+module.exports = {
+  addComment,
+  update,
+  deleteComment,
+  likeComment,
+  deleteLike,
+  getCommentLike,
+};

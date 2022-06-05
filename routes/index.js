@@ -212,6 +212,13 @@ router.get("/posts/search", postController.searchPosts);
 
 /* CRUD COMMENT */
 
+// GETALL
+router.get(
+  "/commentlike/:commentId?",
+  verifyTokenMiddleware.verifyToken,
+  commentController.getCommentLike
+);
+
 // CREATE
 router.post(
   "/comment",
@@ -251,6 +258,14 @@ router.delete(
 
 /* CRUD REPLY COMMENT */
 
+// GET ALL
+
+// CREATE
+router.get(
+  "/replycommentlike/:replyCommentId?",
+  verifyTokenMiddleware.verifyToken,
+  replyComment.getCommentLike
+);
 // CREATE
 router.post(
   "/replycomment",

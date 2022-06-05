@@ -162,6 +162,23 @@ const deleteLike = async (req, res) => {
   }
 };
 
+// GET COMMENT LIKE
+const getCommentLike = async (req, res) => {
+  try {
+    const comments = await replyCommentLike.findAll({
+      where: {
+        replyCommentId: req.params.replyCommentId,
+      },
+    });
+    res.status(200).json({ error: false, message: comments });
+  } catch (error) {
+    console.log("Error unlike comment : " + error);
+    return res
+      .status(500)
+      .json({ error: true, error: "Terjadi kesalahan pada server" });
+  }
+};
+
 // GET COMMENT
 
 module.exports = {
@@ -170,4 +187,5 @@ module.exports = {
   deleteComment,
   likeComment,
   deleteLike,
+  getCommentLike,
 };
