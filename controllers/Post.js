@@ -7,6 +7,8 @@ const Like = require("../models/PostLikes");
 const { Op } = require("sequelize");
 const Comment = require("../models/CommentModel");
 const replyComment = require("../models/replyComment");
+const commentLike = require("../models/CommentLike");
+const replyCommentLike = require("../models/ReplyCommentLike");
 
 // create (VALIDASI BELUM ADA)
 const create = async (req, res) => {
@@ -115,12 +117,18 @@ const getPost = async (req, res) => {
               model: Users,
             },
             {
+              model: commentLike,
+            },
+            {
               model: replyComment,
               as: "reply",
               include: [
                 {
                   attributes: ["username", "full_name", "profile_picture"],
                   model: Users,
+                },
+                {
+                  model: replyCommentLike,
                 },
                 {
                   attributes: ["username"],
@@ -167,12 +175,18 @@ const getAll = async (req, res) => {
               model: Users,
             },
             {
+              model: commentLike,
+            },
+            {
               model: replyComment,
               as: "reply",
               include: [
                 {
                   attributes: ["username", "full_name", "profile_picture"],
                   model: Users,
+                },
+                {
+                  model: replyCommentLike,
                 },
                 {
                   attributes: ["username"],
@@ -300,12 +314,18 @@ const timeline = async (req, res) => {
               model: Users,
             },
             {
+              model: commentLike,
+            },
+            {
               model: replyComment,
               as: "reply",
               include: [
                 {
                   attributes: ["username", "full_name", "profile_picture"],
                   model: Users,
+                },
+                {
+                  model: replyCommentLike,
                 },
                 {
                   attributes: ["username"],
