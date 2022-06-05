@@ -1,8 +1,13 @@
 const Reply = require("../models/replyComment");
 const replyCommentLike = require("../models/ReplyCommentLike");
+const { validationResult } = require("express-validator");
 
 // ADD REPLY COMMENT
 const replyComment = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ error: true, message: errors["errors"] });
+  }
   try {
     const { commentId, parentId, replyComment } = req.body;
     const userId = req.userId;
@@ -149,7 +154,7 @@ const deleteLike = async (req, res) => {
     if (!like) {
       return res.status(404).json({
         error: true,
-        message: "Like komentar tidak ditemukan atau bukan milik anda",
+        message: "Anda belum like komentar ini atau bukan milik anda",
       });
     }
     await like.destroy();

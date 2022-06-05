@@ -65,14 +65,14 @@ router.get(
   userController.getUsers
 );
 router.get(
-  "/user/:id",
+  "/user/:id?",
   verifyTokenMiddleware.verifyToken,
   userController.getUser
 );
 
 // edit
 router.put(
-  "/user/:id",
+  "/user/:id?",
   verifyTokenMiddleware.verifyToken,
   // uploadMiddleware.uploadAvatar,
   userController.updateUser
@@ -80,7 +80,7 @@ router.put(
 
 // edit phone
 router.put(
-  "/userphone/:id",
+  "/userphone/:id?",
   verifyTokenMiddleware.verifyToken,
   verifyOtpMiddleware.verifyOtp,
   userController.updatePhone
@@ -88,7 +88,7 @@ router.put(
 
 // edit phone
 router.put(
-  "/useremail/:id",
+  "/useremail/:id?",
   verifyTokenMiddleware.verifyToken,
   verifyOtpMiddleware.verifyOtp,
   userController.updateEmail
@@ -269,6 +269,9 @@ router.get(
 // CREATE
 router.post(
   "/replycomment",
+  check("parentId").notEmpty().withMessage("ParentId tidak boleh kosong"),
+  check("replyComment").notEmpty().withMessage("Komentar tidak boleh kosong"),
+  check("commentId").notEmpty().withMessage("CommentId tidak boleh kosong"),
   verifyTokenMiddleware.verifyToken,
   replyComment.replyComment
 );

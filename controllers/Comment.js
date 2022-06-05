@@ -6,6 +6,11 @@ const replyCommentLike = require("../models/ReplyCommentLike");
 // ADD
 const addComment = async (req, res) => {
   try {
+    if (!req.body.comment)
+      return res
+        .status(400)
+        .json({ error: true, message: "Komentar tidak boleh kosong" });
+
     const postId = req.body.postId;
     const userId = req.userId;
     const comment = req.body.comment;
@@ -163,7 +168,7 @@ const deleteLike = async (req, res) => {
     if (!like) {
       return res.status(404).json({
         error: true,
-        message: "Like komentar tidak ditemukan atau bukan milik anda",
+        message: "Anda belum like komentar ini atau komentar bukan milik anda",
       });
     }
     await like.destroy();

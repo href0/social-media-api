@@ -11,6 +11,7 @@ const Post = db.define(
     // },
     title_post: {
       type: DataTypes.STRING,
+      allowNull: false,
     },
     desc_post: {
       type: DataTypes.TEXT,

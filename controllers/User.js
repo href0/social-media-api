@@ -7,6 +7,7 @@ const axios = require("axios");
 const dotenv = require("dotenv");
 const nodemailer = require("nodemailer");
 const emailValidator = require("email-validator");
+const { check } = require("express-validator");
 
 // GET ALL USERS
 const getUsers = async (req, res) => {
@@ -66,6 +67,13 @@ const updateUser = async (req, res) => {
         const phoneNumber = formatter.phoneNumberFormatter(
           req.body.phone_number
         );
+
+        if (phoneNumber === checkUser.phone_number)
+          return res.status(400).json({
+            error: true,
+            message: "No handphone sama dengan sebelumnya",
+          });
+
         const checkNohp = await Users.findOne({
           where: {
             phone_number: phoneNumber,
@@ -120,6 +128,10 @@ const updateUser = async (req, res) => {
           });
       } else if (req.body.email) {
         if (emailValidator.validate(req.body.email)) {
+          if (req.body.email === checkUser.email)
+            return res
+              .status(400)
+              .json({ error: true, message: "Email sama dengan sebelumnya" });
           // check EMAIL
           const checkEmail = await Users.findOne({
             where: {
@@ -174,26 +186,53 @@ const updateUser = async (req, res) => {
           res.status(403).json({ error: true, message: "Format email salah" });
         }
       } else {
-        await checkUser.update(req.body);
+        /*
+        username = username
+        full_name = nama
+        bio = bio
+        birth_date = tanggal lahir
+        gender = jenis kelamin
+        skin_type = tipe kulit
+        profile_picture = avatar
+        */
+        if (Object.keys(req.body).length === 0)
+          return res
+            .status(400)
+            .json({ error: true, message: "Body tidak boleh kosong" });
 
-        res
-          .status(200)
-          .json({ error: false, message: "User berhasil diupdate" });
+        if (
+          req.body.full_name == "" ||
+          req.body.bio == "" ||
+          req.body.username == "" ||
+          req.body.birth_date == "" ||
+          req.body.gender == "" ||
+          req.body.skin_type == ""
+        )
+          return res.status(400).json({
+            error: true,
+            message:
+              "Masukkan salah satu body username|full_name|bio|birth_date|gender|skin_type",
+          });
+        const update = await checkUser.update(req.body);
+
+        res.status(200).json({ error: false, message: update });
       }
     } catch (error) {
       console.log(error);
       res.status(403).json({ error: true, message: error.errors[0].message });
     }
   } else {
-    res
-      .status(403)
-      .json({ error: true, message: "Kamu tidak dapat akses ini" });
+    res.status(403).json({ error: true, message: "UserId tidak cocok" });
   }
 };
 
 // update EMAIL
 const updateEmail = async (req, res) => {
   try {
+    if (req.params.id != req.userId)
+      return res
+        .status(403)
+        .json({ error: true, message: "UserId tidak valid" });
     const email = req.phone_number; // ubah nanti saja KEKW
     const checkUser = await Users.findOne({
       where: {
@@ -205,7 +244,8 @@ const updateEmail = async (req, res) => {
         .status(400)
         .json({ error: true, message: "Email sudah terdaftar" });
 
-    await Users.update({ email: email }, { where: { id: req.params.id } });
+    await Users.update({ email: email }, { where: { id: req.userId } });
+    await Otp.destroy({ where: { phone_number: req.email } });
     res.status(200).json({ error: false, message: "Email berhasil diupdate" });
   } catch (error) {
     console.log(error);
@@ -218,6 +258,10 @@ const updateEmail = async (req, res) => {
 // update PhoneNumber
 const updatePhone = async (req, res) => {
   try {
+    if (req.params.id != req.userId)
+      return res
+        .status(403)
+        .json({ error: true, message: "UserId tidak valid" });
     const nohp = req.phone_number;
     const checkUser = await Users.findOne({
       where: {
@@ -229,10 +273,8 @@ const updatePhone = async (req, res) => {
         .status(400)
         .json({ error: true, message: "No handphone sudah terdaftar" });
 
-    await Users.update(
-      { phone_number: nohp },
-      { where: { id: req.params.id } }
-    );
+    await Users.update({ phone_number: nohp }, { where: { id: req.userId } });
+    await Otp.destroy({ where: { phone_number: nohp } });
     res
       .status(200)
       .json({ error: false, message: "No handphone berhasil diupdate" });

@@ -9,6 +9,8 @@ const Comment = require("../models/CommentModel");
 const replyComment = require("../models/replyComment");
 const commentLike = require("../models/CommentLike");
 const replyCommentLike = require("../models/ReplyCommentLike");
+const fs = require("fs");
+const { promisify } = require("util");
 
 // create (VALIDASI BELUM ADA)
 const create = async (req, res) => {
@@ -16,13 +18,18 @@ const create = async (req, res) => {
     return res
       .status(400)
       .json({ error: true, message: "Gambar harus diupload" });
-  // if (!req.body.title)
-  //   return res.status(400).json({ error: true, message: "Title harus diisi" });
 
-  const title = req.body.title;
+  const title = req.title;
   const content = req.body.desc;
   const image = req.file.path;
   try {
+    const unlinkAsync = promisify(fs.unlink);
+    if (!req.title) {
+      await unlinkAsync(req.file.path);
+      return res
+        .status(400)
+        .json({ error: true, message: "Title tidak boleh kosong" });
+    }
     const addPost = await Post.create({
       userId: req.userId,
       title_post: title,
@@ -74,7 +81,7 @@ const deletePost = async (req, res) => {
       return res
         .status(404)
         .json({ error: true, message: "Post tidak ditemukan" });
-    if (post.user_id != req.body.userId)
+    if (post.userId != req.userId)
       return res
         .status(403)
         .json({ error: true, message: "UserId tidak cocok" });
@@ -128,12 +135,12 @@ const getPost = async (req, res) => {
                   model: Users,
                 },
                 {
-                  model: replyCommentLike,
-                },
-                {
                   attributes: ["username"],
                   as: "parent",
                   model: Users,
+                },
+                {
+                  model: replyCommentLike,
                 },
               ],
             },
@@ -185,13 +192,14 @@ const getAll = async (req, res) => {
                   attributes: ["username", "full_name", "profile_picture"],
                   model: Users,
                 },
-                {
-                  model: replyCommentLike,
-                },
+
                 {
                   attributes: ["username"],
                   as: "parent",
                   model: Users,
+                },
+                {
+                  model: replyCommentLike,
                 },
               ],
             },
@@ -324,13 +332,14 @@ const timeline = async (req, res) => {
                   attributes: ["username", "full_name", "profile_picture"],
                   model: Users,
                 },
-                {
-                  model: replyCommentLike,
-                },
+
                 {
                   attributes: ["username"],
                   as: "parent",
                   model: Users,
+                },
+                {
+                  model: replyCommentLike,
                 },
               ],
             },
