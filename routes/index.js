@@ -206,7 +206,7 @@ router.get(
 );
 
 // SEARCH POST
-router.get("/posts/search", postController.searchPosts);
+router.get("/posts_search", postController.searchPosts);
 
 /* END CRUD POST */
 

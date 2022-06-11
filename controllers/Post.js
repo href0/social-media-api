@@ -430,11 +430,48 @@ const searchPosts = async (req, res) => {
         .status(404)
         .json({ error: true, message: "masukkan query yang ingin dicari" });
     const user = await Post.findAll({
-      include: {
-        attributes: ["username", "full_name", "profile_picture"],
-        model: Users,
-        required: true,
-      },
+      include: [
+        {
+          attributes: ["username", "full_name", "profile_picture"],
+          model: Users,
+          required: true,
+        },
+        {
+          attributes: ["userId"],
+          model: postLikes,
+        },
+        {
+          model: Comment,
+          required: false,
+          include: [
+            {
+              attributes: ["username", "full_name", "profile_picture"],
+              model: Users,
+            },
+            {
+              model: commentLike,
+            },
+            {
+              model: replyComment,
+              as: "reply",
+              include: [
+                {
+                  attributes: ["username", "full_name", "profile_picture"],
+                  model: Users,
+                },
+                {
+                  attributes: ["username"],
+                  as: "parent",
+                  model: Users,
+                },
+                {
+                  model: replyCommentLike,
+                },
+              ],
+            },
+          ],
+        },
+      ],
       where: {
         [Op.or]: [
           {
