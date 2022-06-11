@@ -9,6 +9,10 @@ const dotenv = require("dotenv");
 const nodemailer = require("nodemailer");
 const emailValidator = require("email-validator");
 const { check } = require("express-validator");
+const postLikes = require("../models/PostLikes.js");
+const commentLike = require("../models/CommentLike.js");
+const replyComment = require("../models/replyComment.js");
+const replyCommentLike = require("../models/ReplyCommentLike.js");
 
 // GET ALL USERS
 const getUsers = async (req, res) => {
