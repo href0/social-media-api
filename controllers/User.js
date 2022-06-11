@@ -13,6 +13,7 @@ const postLikes = require("../models/PostLikes.js");
 const commentLike = require("../models/CommentLike.js");
 const replyComment = require("../models/replyComment.js");
 const replyCommentLike = require("../models/ReplyCommentLike.js");
+const Comment = require("../models/CommentModel.js");
 
 // GET ALL USERS
 const getUsers = async (req, res) => {
