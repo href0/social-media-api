@@ -498,6 +498,48 @@ const searchUser = async (req, res) => {
     });
 
     const posts = await Posts.findAll({
+      include: [
+        {
+          attributes: ["username", "full_name", "profile_picture"],
+          model: Users,
+          required: true,
+        },
+        {
+          attributes: ["userId"],
+          model: postLikes,
+        },
+        {
+          model: Comment,
+          required: false,
+          include: [
+            {
+              attributes: ["username", "full_name", "profile_picture"],
+              model: Users,
+            },
+            {
+              model: commentLike,
+            },
+            {
+              model: replyComment,
+              as: "reply",
+              include: [
+                {
+                  attributes: ["username", "full_name", "profile_picture"],
+                  model: Users,
+                },
+                {
+                  attributes: ["username"],
+                  as: "parent",
+                  model: Users,
+                },
+                {
+                  model: replyCommentLike,
+                },
+              ],
+            },
+          ],
+        },
+      ],
       where: {
         [Op.or]: [
           {
