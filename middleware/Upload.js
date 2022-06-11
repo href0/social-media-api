@@ -1,4 +1,6 @@
 const multer = require("multer");
+const sharp = require("sharp");
+const { promisify } = require("util");
 
 const uploadPost = async (req, res, next) => {
   try {
@@ -44,7 +46,9 @@ const uploadPost = async (req, res, next) => {
           message: err.message,
         });
       }
+
       req.title = req.body.title;
+      // req.fileCompress = filePath;
       next();
     });
   } catch (error) {

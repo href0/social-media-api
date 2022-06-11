@@ -11,6 +11,7 @@ const commentLike = require("../models/CommentLike");
 const replyCommentLike = require("../models/ReplyCommentLike");
 const fs = require("fs");
 const { promisify } = require("util");
+const sharp = require("sharp");
 
 // create (VALIDASI BELUM ADA)
 const create = async (req, res) => {
@@ -30,11 +31,20 @@ const create = async (req, res) => {
         .status(400)
         .json({ error: true, message: "Title tidak boleh kosong" });
     }
+
+    let filePath =
+      "assets/images/posts/" + new Date().getTime() + req.userId + ".jpeg";
+    await sharp(req.file.path)
+      .jpeg({
+        quality: 30,
+      })
+      .toFile(filePath);
+    fs.unlinkSync(req.file.path);
     const addPost = await Post.create({
       userId: req.userId,
       title_post: title,
       desc_post: content,
-      image_post: image,
+      image_post: filePath,
     });
     res.status(200).json({ error: false, message: addPost });
   } catch (error) {
