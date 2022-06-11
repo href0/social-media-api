@@ -1,4 +1,5 @@
 const Users = require("../models/UserModel.js");
+const Posts = require("../models/PostModel.js");
 const Follows = require("../models/FollowModel.js");
 const { Op, where } = require("sequelize");
 const formatter = require("../helper/formatter.js");
@@ -485,19 +486,36 @@ const getFollowing = async (req, res) => {
 // SEARCH USER
 const searchUser = async (req, res) => {
   try {
-    if (req.query.username == "")
-      return res
-        .status(404)
-        .json({ error: true, message: "masukkan username yang ingin dicari" });
+    if (req.query.query == "")
+      return res.status(404).json({ error: true, message: "masukkan query" });
     const user = await Users.findAll({
       attributes: {
         exclude: ["refresh_token"],
       },
       where: {
-        username: { [Op.like]: `%${req.query.username}%` },
+        username: { [Op.like]: `%${req.query.query}%` },
       },
     });
-    return res.status(200).json({ error: false, message: user });
+
+    const posts = await Posts.findAll({
+      where: {
+        [Op.or]: [
+          {
+            title_post: {
+              [Op.like]: `%${req.query.query}%`,
+            },
+          },
+          {
+            desc_post: {
+              [Op.like]: `%${req.query.query}%`,
+            },
+          },
+        ],
+      },
+    });
+    return res
+      .status(200)
+      .json({ error: false, message: { users: user, posts } });
   } catch (error) {
     return res.status(500).json({ error: true, message: error.message });
   }
