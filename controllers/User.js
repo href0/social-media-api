@@ -34,7 +34,12 @@ const getUsers = async (req, res) => {
 // GET USER
 const getUser = async (req, res) => {
   try {
+    let myProfile = false;
+    let statusFollow = false;
     const user = await Users.findOne({
+      attributes: {
+        exclude: ["refresh_token"],
+      },
       where: {
         id: req.params.id,
       },
@@ -44,7 +49,25 @@ const getUser = async (req, res) => {
         .status(404)
         .json({ error: true, message: "User tidak ditemukan" });
     }
-    res.status(200).json({ error: false, message: user });
+
+    // check status follow
+    const checkStatusFollow = await Follows.findOne({
+      where: {
+        [Op.and]: [{ sender_id: req.userId }, { receiver_id: user.id }],
+      },
+    });
+
+    if (checkStatusFollow) {
+      statusFollow = true;
+    }
+
+    if (req.userId === user.id) {
+      myProfile = true;
+    }
+    res.status(200).json({
+      error: false,
+      message: { myProfile, statusFollow, user },
+    });
   } catch (error) {
     console.error("getUserError: " + error);
     res.status(400).json({ error: true, message: error });
