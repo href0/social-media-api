@@ -50,6 +50,20 @@ const getUser = async (req, res) => {
         .json({ error: true, message: "User tidak ditemukan" });
     }
 
+    const following = await Follows.findAll({
+      where: {
+        sender_id: user.id,
+      },
+      attributes: [["receiver_id", "userId"]],
+    });
+
+    const followers = await Follows.findAll({
+      where: {
+        receiver_id: user.id,
+      },
+      attributes: [["sender_id", "userId"]],
+    });
+
     // check status follow
     const checkStatusFollow = await Follows.findOne({
       where: {
@@ -64,9 +78,14 @@ const getUser = async (req, res) => {
     if (req.userId === user.id) {
       myProfile = true;
     }
+    const asa = { ...user._previousDataValues, following, followers };
     res.status(200).json({
       error: false,
-      message: { myProfile, statusFollow, user },
+      message: {
+        myProfile,
+        statusFollow,
+        user: asa,
+      },
     });
   } catch (error) {
     console.error("getUserError: " + error);

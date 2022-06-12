@@ -106,6 +106,7 @@ const deletePost = async (req, res) => {
 // GET A POST
 const getPost = async (req, res) => {
   try {
+    let statusFollow = false;
     if (!req.params.id) {
       return res
         .status(400)
@@ -162,7 +163,16 @@ const getPost = async (req, res) => {
       return res
         .status(404)
         .json({ error: true, message: "Post tidak ditemukan" });
-    res.status(200).json({ error: false, message: post });
+
+    const checkStatusFollow = await Follows.findOne({
+      where: {
+        [Op.and]: [{ sender_id: req.userId }, { receiver_id: post.userId }],
+      },
+    });
+    if (checkStatusFollow) {
+      statusFollow = true;
+    }
+    res.status(200).json({ error: false, message: { post, statusFollow } });
   } catch (error) {
     res.status(500).json({ error: true, message: error.message });
   }

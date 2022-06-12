@@ -110,6 +110,26 @@ const Login = async (req, res) => {
         message: { register: true, register_token: registerToken },
       });
     } else {
+      const following = await Follows.findAll({
+        where: {
+          sender_id: user.id,
+        },
+        attributes: [["receiver_id", "userId"]],
+      });
+
+      const followers = await Follows.findAll({
+        where: {
+          receiver_id: user.id,
+        },
+        attributes: [["sender_id", "userId"]],
+      });
+
+      const userWithFollow = {
+        ...user._previousDataValues,
+        following,
+        followers,
+      };
+
       const userId = user.id;
       const levelId = user.level_id;
       const name = user.username;
@@ -141,7 +161,7 @@ const Login = async (req, res) => {
         error: false,
         message: {
           register: false,
-          user: user,
+          user: userWithFollow,
           refreshToken: getToken.refreshToken,
           accessToken: getToken.accessToken,
         },
@@ -183,6 +203,8 @@ const Register = async (req, res) => {
     const levelId = create.level_id;
     const phone_number = create.phone_number;
     const provider = "phone";
+    const following = [];
+    const followers = [];
 
     const getToken = await generateToken.generateToken(
       userId,
@@ -206,11 +228,15 @@ const Register = async (req, res) => {
     }
 
     await Otp.destroy({ where: { phone_number: req.body.phoneNumber } });
-
+    const userWithFollow = {
+      ...create._previousDataValues,
+      following,
+      followers,
+    };
     res.status(201).json({
       error: false,
       message: {
-        user: create,
+        user: userWithFollow,
         refreshToken: getToken.refreshToken,
         accessToken: getToken.accessToken,
       },
