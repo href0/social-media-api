@@ -260,7 +260,7 @@ const Register = async (req, res) => {
         .json({ error: true, message: "Terjadi kesalahan" });
     }
 
-    await Otp.destroy({ where: { phone_number: req.body.phoneNumber } });
+    await Otp.destroy({ where: { phone_number: req.phoneNumber } });
     const userWithFollow = {
       ...create._previousDataValues,
       following,
@@ -275,9 +275,9 @@ const Register = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(403).json({
+    res.status(500).json({
       error: true,
-      message: error.errors,
+      message: "Terjadi kesalahan pada server",
     });
   }
 };
