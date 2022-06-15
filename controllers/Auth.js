@@ -184,6 +184,32 @@ const Register = async (req, res) => {
       .status(400)
       .json({ error: true, message: "Hanya boleh huruf dan angka" });
   try {
+    const checkUser = await Users.findOne({
+      where: {
+        [Op.or]: [
+          { username: req.body.username },
+          {
+            phone_number: formatter.phoneNumberFormatter(req.body.phoneNumber),
+          },
+        ],
+      },
+    });
+
+    if (checkUser) {
+      if (checkUser.username == req.body.username) {
+        return res
+          .status(400)
+          .json({ error: true, message: "Username sudah terdaftar" });
+      } else if (
+        checkUser.phone_number ==
+        formatter.phoneNumberFormatter(req.body.phoneNumber)
+      ) {
+        return res
+          .status(400)
+          .json({ error: true, message: "No handphone sudah terdaftar" });
+      }
+    }
+
     const create = await Users.create({
       phone_number: formatter.phoneNumberFormatter(req.body.phoneNumber), // dari middleware register
       username: req.body.username,
