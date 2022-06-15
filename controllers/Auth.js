@@ -174,6 +174,15 @@ const Login = async (req, res) => {
 
 // REGISTER
 const Register = async (req, res) => {
+  const format = /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+  if (!req.body.username || req.body.username == "")
+    return res
+      .status(400)
+      .json({ error: true, message: "Username tidak boleh kosong" });
+  if (format.test(req.body.username))
+    return res
+      .status(400)
+      .json({ error: true, message: "Hanya boleh huruf dan angka" });
   try {
     const create = await Users.create({
       phone_number: formatter.phoneNumberFormatter(req.body.phoneNumber), // dari middleware register
