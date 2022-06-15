@@ -8,6 +8,7 @@ const generateToken = require("../helper/GenerateToken.js");
 const dotenv = require("dotenv");
 const Follows = require("../models/FollowModel.js");
 dotenv.config();
+const { Op } = require("sequelize");
 
 /*LOGIN REGISTER WITH PHONE NUMBER AND OTP*/
 
@@ -183,13 +184,14 @@ const Register = async (req, res) => {
     return res
       .status(400)
       .json({ error: true, message: "Hanya boleh huruf dan angka" });
+
   try {
     const checkUser = await Users.findOne({
       where: {
         [Op.or]: [
           { username: req.body.username },
           {
-            phone_number: formatter.phoneNumberFormatter(req.body.phoneNumber),
+            phone_number: req.phoneNumber,
           },
         ],
       },
@@ -200,18 +202,14 @@ const Register = async (req, res) => {
         return res
           .status(400)
           .json({ error: true, message: "Username sudah terdaftar" });
-      } else if (
-        checkUser.phone_number ==
-        formatter.phoneNumberFormatter(req.body.phoneNumber)
-      ) {
+      } else if (checkUser.phone_number == req.phoneNumber) {
         return res
           .status(400)
           .json({ error: true, message: "No handphone sudah terdaftar" });
       }
     }
-
     const create = await Users.create({
-      phone_number: formatter.phoneNumberFormatter(req.body.phoneNumber), // dari middleware register
+      phone_number: req.phoneNumber, // dari middleware register
       username: req.body.username,
       full_name: req.body.username,
       birth_date: req.body.birth_date,
