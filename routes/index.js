@@ -173,9 +173,15 @@ router.get(
 
 // GET USER POSTS
 router.get(
-  "/post/user/:userid",
+  "/feed/user/:userId?",
   verifyTokenMiddleware.verifyToken,
   postController.getUserPosts
+);
+
+router.get(
+  "/feed/likes/:userId?",
+  verifyTokenMiddleware.verifyToken,
+  postController.getPostByUserLike
 );
 
 // GET ALL POST

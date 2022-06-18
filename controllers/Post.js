@@ -505,18 +505,131 @@ const getUserPosts = async (req, res) => {
   try {
     const posts = await Post.findAll({
       where: {
-        userId: req.params.userid,
+        userId: req.params.userId,
       },
-      include: {
-        attributes: ["username", "full_name", "profile_picture"],
-        model: Users,
-        required: true,
-      },
+      include: [
+        {
+          attributes: ["username", "full_name", "profile_picture"],
+          model: Users,
+          required: true,
+        },
+        {
+          attributes: ["userId"],
+          model: postLikes,
+        },
+        {
+          model: Comment,
+          required: false,
+          include: [
+            {
+              attributes: ["username", "full_name", "profile_picture"],
+              model: Users,
+            },
+            {
+              model: commentLike,
+            },
+            {
+              model: replyComment,
+              as: "reply",
+              include: [
+                {
+                  attributes: ["username", "full_name", "profile_picture"],
+                  model: Users,
+                },
+                {
+                  attributes: ["username"],
+                  as: "parent",
+                  model: Users,
+                },
+                {
+                  model: replyCommentLike,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      order: [["updatedAt", "DESC"]],
     });
     res.status(200).json({ error: false, message: posts });
   } catch (error) {
     console.log("Error get User Posts : " + error);
-    res.status(500).json({ error: true, message: error.message });
+    res
+      .status(500)
+      .json({ error: true, message: "Terjadi kesalahan pada server" });
+  }
+};
+
+// GET USER POSTS LIKE
+const getPostByUserLike = async (req, res) => {
+  try {
+    const postLike = await postLikes.findAll({
+      where: {
+        userId: req.params.userId,
+      },
+    });
+    let arr = [];
+    await Promise.all(
+      postLike.map((element) => {
+        arr.push(element.postId);
+      })
+    );
+
+    const posts = await Post.findAll({
+      where: {
+        id: { [Op.in]: arr },
+      },
+      include: [
+        {
+          attributes: ["username", "full_name", "profile_picture"],
+          model: Users,
+          required: true,
+        },
+        {
+          attributes: ["userId"],
+          model: postLikes,
+        },
+        {
+          model: Comment,
+          required: false,
+          include: [
+            {
+              attributes: ["username", "full_name", "profile_picture"],
+              model: Users,
+            },
+            {
+              model: commentLike,
+            },
+            {
+              model: replyComment,
+              as: "reply",
+              include: [
+                {
+                  attributes: ["username", "full_name", "profile_picture"],
+                  model: Users,
+                },
+
+                {
+                  attributes: ["username"],
+                  as: "parent",
+                  model: Users,
+                },
+                {
+                  model: replyCommentLike,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      order: [["updatedAt", "DESC"]],
+    });
+    return res.status(200).json({ error: false, message: posts });
+  } catch (error) {
+    console.log("error getPostByUserLike: " + error.message);
+    return res
+      .status(500)
+      .json({ error: true, message: "Terjadi kesalahan pada server" });
   }
 };
 
@@ -533,4 +646,5 @@ module.exports = {
   timeline,
   searchPosts,
   getUserPosts,
+  getPostByUserLike,
 };
