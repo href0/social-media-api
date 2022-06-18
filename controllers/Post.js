@@ -549,6 +549,8 @@ const getUserPosts = async (req, res) => {
           ],
         },
       ],
+      offset: Number(req.params.offset) ? Number(req.params.offset) : 0,
+      limit: Number(req.params.limit) ? Number(req.params.limit) : 10,
       order: [["updatedAt", "DESC"]],
     });
     res.status(200).json({ error: false, message: posts });
@@ -622,6 +624,8 @@ const getPostByUserLike = async (req, res) => {
           ],
         },
       ],
+      offset: Number(req.params.offset) ? Number(req.params.offset) : 0,
+      limit: Number(req.params.limit) ? Number(req.params.limit) : 10,
       order: [["updatedAt", "DESC"]],
     });
     return res.status(200).json({ error: false, message: posts });

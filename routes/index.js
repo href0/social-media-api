@@ -60,7 +60,7 @@ router.delete("/auth/logout", authController.Logout);
 
 // Users
 router.get(
-  "/users",
+  "/users/:offset?/:limit?",
   verifyTokenMiddleware.verifyToken,
   userController.getUsers
 );
@@ -173,13 +173,13 @@ router.get(
 
 // GET USER POSTS
 router.get(
-  "/feed/user/:userId?",
+  "/feed/user/:userId?/:offset?/:limit?",
   verifyTokenMiddleware.verifyToken,
   postController.getUserPosts
 );
 
 router.get(
-  "/feed/likes/:userId?",
+  "/feed/likes/:userId?/:offset?/:limit?",
   verifyTokenMiddleware.verifyToken,
   postController.getPostByUserLike
 );

@@ -14,12 +14,31 @@ const commentLike = require("../models/CommentLike.js");
 const replyComment = require("../models/replyComment.js");
 const replyCommentLike = require("../models/ReplyCommentLike.js");
 const Comment = require("../models/CommentModel.js");
+const sequelize = require("sequelize");
 
 // GET ALL USERS
 const getUsers = async (req, res) => {
   try {
+    const following = await Follows.findAll({
+      where: {
+        sender_id: req.userId,
+      },
+    });
+
+    let arr = [req.userId];
+    await Promise.all(
+      following.map((element) => {
+        arr.push(element.receiver_id);
+      })
+    );
     const users = await Users.findAll({
+      where: {
+        id: { [Op.notIn]: arr }, // tidak termasuk id yang sudah difollow
+      },
       attributes: ["id", "username", "phone_number"],
+      offset: Number(req.params.offset) ? Number(req.params.offset) : 0,
+      limit: Number(req.params.limit) ? Number(req.params.limit) : 10,
+      order: [sequelize.fn("RAND")],
     });
     res.status(200).json({
       error: false,
@@ -27,7 +46,9 @@ const getUsers = async (req, res) => {
     });
   } catch (error) {
     console.error("getUserError: " + error);
-    return res.status(500).json({ error: true, message: error.message });
+    return res
+      .status(500)
+      .json({ error: true, message: "Terjadi kesahalan pada server" });
   }
 };
 
