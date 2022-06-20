@@ -35,7 +35,7 @@ const koneksi = async () => {
   try {
     await db.authenticate();
     console.log("Database connected!");
-    await db.sync({ alter: true });
+    // await db.sync({ alter: true });
     // await Users.sync({ alter: true });
     // await Otp.sync({ alter: true });
     // await Follows.sync({ alter: true });

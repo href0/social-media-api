@@ -572,6 +572,24 @@ const searchUser = async (req, res) => {
       },
     });
 
+    let receiverId = [];
+    await Promise.all(
+      user.map((element) => {
+        receiverId.push(element.id);
+      })
+    );
+    let statusFollow = false;
+    let users = [];
+    for (const u of user) {
+      const follow = await Follows.findOne({
+        where: {
+          [Op.and]: [{ sender_id: req.userId }, { receiver_id: u.id }],
+        },
+      });
+      follow ? (statusFollow = true) : (statusFollow = false);
+      users.push({ ...u._previousDataValues, statusFollow });
+    }
+
     const posts = await Posts.findAll({
       include: [
         {
@@ -630,9 +648,7 @@ const searchUser = async (req, res) => {
         ],
       },
     });
-    return res
-      .status(200)
-      .json({ error: false, message: { users: user, posts } });
+    return res.status(200).json({ error: false, message: { users, posts } });
   } catch (error) {
     return res.status(500).json({ error: true, message: error.message });
   }

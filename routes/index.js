@@ -131,7 +131,11 @@ router.get(
 );
 
 // SEARCH USER
-router.get("/search", userController.searchUser);
+router.get(
+  "/search",
+  verifyTokenMiddleware.verifyToken,
+  userController.searchUser
+);
 
 // DELETE USER
 router.delete("/user/delete", userController.destroy);
