@@ -35,11 +35,18 @@ const getUsers = async (req, res) => {
       where: {
         id: { [Op.notIn]: arr }, // tidak termasuk id yang sudah difollow
       },
-      attributes: ["id", "username", "phone_number"],
+      attributes: [
+        "id",
+        "username",
+        "phone_number",
+        "full_name",
+        "profile_picture",
+      ],
       offset: Number(req.params.offset) ? Number(req.params.offset) : 0,
       limit: Number(req.params.limit) ? Number(req.params.limit) : 10,
       order: [sequelize.fn("RAND")],
     });
+
     res.status(200).json({
       error: false,
       message: users,
