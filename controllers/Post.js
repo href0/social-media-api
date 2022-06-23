@@ -371,6 +371,18 @@ const timeline = async (req, res) => {
       order: [["updatedAt", "DESC"]],
     });
 
+    let timeline = [];
+    for (const post of userPosts) {
+      let statusLike = false;
+      for (const like of post.postLikes) {
+        if (like.userId == req.userId) {
+          statusLike = true;
+        }
+      }
+      const totalLikes = Object.keys(post.postLikes).length;
+      timeline.push({ ...post._previousDataValues, statusLike, totalLikes });
+    }
+
     // const followingPosts = await Promise.all(
     //   following.map((element) => {
     //     return Post.findAll({
@@ -421,7 +433,7 @@ const timeline = async (req, res) => {
     // );
 
     //const allPosts = userPosts.concat(...followingPosts); // menggabungkan userpost dengan followingpost
-    const sortPostsByDate = await userPosts.sort((a, b) => {
+    const sortPostsByDate = timeline.sort((a, b) => {
       // menyortir semua post berdasarkan UpdateAt menggunakan DESC
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
