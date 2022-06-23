@@ -261,9 +261,18 @@ const likePost = async (req, res) => {
       postId: post.id,
       userId: req.userId,
     });
+
+    const likes = await postLikes.findAll({
+      where: {
+        postId: post.id,
+      },
+    });
+
+    const totalLikes = Object.keys(likes).length;
+
     return res
       .status(201)
-      .json({ error: false, message: "Post berhasil dilike" });
+      .json({ error: false, message: { statusLike: true, totalLikes } });
   } catch (error) {
     return res.status(500).json({ error: true, message: error.message });
   }
@@ -296,9 +305,18 @@ const unlikePost = async (req, res) => {
         userId: req.userId,
       },
     });
+
+    const likes = await postLikes.findAll({
+      where: {
+        postId: post.id,
+      },
+    });
+
+    const totalLikes = Object.keys(likes).length;
+
     return res
       .status(200)
-      .json({ error: false, message: "Post berhasil diunlike" });
+      .json({ error: false, message: { statusLike: false, totalLikes } });
   } catch (error) {
     return res.status(500).json({ error: true, message: error.message });
   }
