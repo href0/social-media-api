@@ -176,6 +176,7 @@ const Login = async (req, res) => {
 // REGISTER
 const Register = async (req, res) => {
   const format = /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+  const phoneNumber = formatter.phoneNumberFormatter(req.body.phoneNumber);
   if (!req.body.username || req.body.username == "")
     return res
       .status(400)
@@ -191,7 +192,7 @@ const Register = async (req, res) => {
         [Op.or]: [
           { username: req.body.username },
           {
-            phone_number: req.phoneNumber,
+            phone_number: phoneNumber,
           },
         ],
       },
@@ -202,14 +203,14 @@ const Register = async (req, res) => {
         return res
           .status(400)
           .json({ error: true, message: "Username sudah terdaftar" });
-      } else if (checkUser.phone_number == req.phoneNumber) {
+      } else if (checkUser.phone_number == phoneNumber) {
         return res
           .status(400)
           .json({ error: true, message: "No handphone sudah terdaftar" });
       }
     }
     const create = await Users.create({
-      phone_number: req.phoneNumber, // dari middleware register
+      phone_number: phoneNumber, // dari middleware register
       username: req.body.username,
       full_name: req.body.username,
       birth_date: req.body.birth_date,
@@ -260,7 +261,7 @@ const Register = async (req, res) => {
         .json({ error: true, message: "Terjadi kesalahan" });
     }
 
-    await Otp.destroy({ where: { phone_number: req.phoneNumber } });
+    await Otp.destroy({ where: { phone_number: phoneNumber } });
     const userWithFollow = {
       ...create._previousDataValues,
       following,
