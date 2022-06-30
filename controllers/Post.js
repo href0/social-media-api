@@ -12,6 +12,7 @@ const replyCommentLike = require("../models/ReplyCommentLike");
 const fs = require("fs");
 const { promisify } = require("util");
 const sharp = require("sharp");
+const helper = require("../helper/helper.js");
 
 // create (VALIDASI BELUM ADA)
 const create = async (req, res) => {
@@ -229,8 +230,9 @@ const getAll = async (req, res) => {
       offset: Number(req.params.offset) ? Number(req.params.offset) : 0,
       limit: Number(req.params.limit) ? Number(req.params.limit) : 10,
     });
+    const allPosts = helper.getPostsWithStatusAndTotalLikes(posts, req.userId);
 
-    res.status(200).json({ error: false, message: posts });
+    res.status(200).json({ error: false, message: allPosts });
   } catch (error) {
     res.status(500).json({ error: true, message: error.message });
   }
@@ -389,17 +391,10 @@ const timeline = async (req, res) => {
       order: [["updatedAt", "DESC"]],
     });
 
-    let timeline = [];
-    for (const post of userPosts) {
-      let statusLike = false;
-      for (const like of post.postLikes) {
-        if (like.userId == req.userId) {
-          statusLike = true;
-        }
-      }
-      const totalLikes = Object.keys(post.postLikes).length;
-      timeline.push({ ...post._previousDataValues, statusLike, totalLikes });
-    }
+    const timeline = helper.getPostsWithStatusAndTotalLikes(
+      userPosts,
+      req.userId
+    );
 
     // const followingPosts = await Promise.all(
     //   following.map((element) => {
@@ -530,7 +525,7 @@ const searchPosts = async (req, res) => {
   }
 };
 
-// GET USER POSTS
+// GET USER POSTS - FEED USER
 const getUserPosts = async (req, res) => {
   try {
     const posts = await Post.findAll({
@@ -583,7 +578,10 @@ const getUserPosts = async (req, res) => {
       limit: Number(req.params.limit) ? Number(req.params.limit) : 10,
       order: [["updatedAt", "DESC"]],
     });
-    res.status(200).json({ error: false, message: posts });
+
+    const allPosts = helper.getPostsWithStatusAndTotalLikes(posts, req.userId);
+
+    res.status(200).json({ error: false, message: allPosts });
   } catch (error) {
     console.log("Error get User Posts : " + error);
     res
@@ -592,7 +590,7 @@ const getUserPosts = async (req, res) => {
   }
 };
 
-// GET USER POSTS LIKE
+// GET USER POSTS LIKE - FEED LIKES
 const getPostByUserLike = async (req, res) => {
   try {
     const postLike = await postLikes.findAll({
@@ -658,7 +656,10 @@ const getPostByUserLike = async (req, res) => {
       limit: Number(req.params.limit) ? Number(req.params.limit) : 10,
       order: [["updatedAt", "DESC"]],
     });
-    return res.status(200).json({ error: false, message: posts });
+
+    const allPosts = helper.getPostsWithStatusAndTotalLikes(posts, req.userId);
+
+    return res.status(200).json({ error: false, message: allPosts });
   } catch (error) {
     console.log("error getPostByUserLike: " + error.message);
     return res
